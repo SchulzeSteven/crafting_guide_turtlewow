@@ -1,8 +1,8 @@
 ## Interface: 11200
-## Title: BashyoCraftingGuide
+## Title: |cff33ff33B|rashyo|cff33ff33C|rafting|cff33ff33G|ruide
 ## Author: by |cffff4444Bashyo|r
 ## Version: 0.2.1
-## Notes: Leatherworking progress & shopping lists
+## Notes: Crafting guide & shopping lists with automatic material calculation
 ## SavedVariables: BashyoCraftingGuideDB, BashyoCraftingGuide_SV
 
 BashyoCraftingGuide.lua
