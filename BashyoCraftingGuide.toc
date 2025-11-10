@@ -7,4 +7,5 @@
 
 BashyoCraftingGuide.lua
 BCG_Data_Leatherworking.lua
-BCG_Page_Home.lua
+BCG_Page_Hub.lua
+BCG_Page_Leatherworking.lua
