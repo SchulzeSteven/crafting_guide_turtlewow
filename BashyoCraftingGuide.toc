@@ -1,0 +1,10 @@
+## Interface: 11200
+## Title: BashyoCraftingGuide
+## Author: by |cffff4444Bashyo|r
+## Version: 0.2.1
+## Notes: Leatherworking progress & shopping lists
+## SavedVariables: BashyoCraftingGuideDB, BashyoCraftingGuide_SV
+
+BashyoCraftingGuide.lua
+BH_Data_Leatherworking.lua
+BH_Page_Home.lua
