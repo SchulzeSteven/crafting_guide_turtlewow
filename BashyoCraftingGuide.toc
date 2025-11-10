@@ -6,5 +6,5 @@
 ## SavedVariables: BashyoCraftingGuideDB, BashyoCraftingGuide_SV
 
 BashyoCraftingGuide.lua
-BH_Data_Leatherworking.lua
-BH_Page_Home.lua
+BCG_Data_Leatherworking.lua
+BCG_Page_Home.lua
