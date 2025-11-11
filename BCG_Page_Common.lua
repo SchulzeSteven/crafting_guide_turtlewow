@@ -64,16 +64,123 @@ end
 -- For now we reuse the Leatherworking trainer lists as a visual template;
 -- per-profession trainer data can be injected later through PROF.trainers
 local DEFAULT_TRAINERS = {
-  leatherworking = {
-    { header="Alliance Apprentice and Journeyman Leatherworking Trainers (1–75 and 75–150)",
-      color={r=0.58,g=0.8,b=1.0},
-      list={{"Aayndia Florawind","Ashenvale","35, 52"},{"Adele Fielder","Elwynn Forest","46, 62"},{"Drakk Stonehand","The Hinterlands","13, 43"},{"Fimble Finespindle","Ironforge","40, 32"},{"Nadiya Maneweaver","Teldrassil","43, 43"},{"Randal Worth","Stormwind City","68, 49"},{"Telonis","Darnassus","64, 21"},}},
-    { header="Horde Apprentice & Journeyman Leatherworking Trainers (1–75 and 75–150)",
-      color={r=1.0,g=0.55,b=0.55},
-      list={{"Arthur Moore","Undercity","70, 58"},{"Brawn","Stranglethorn Vale","37, 50"},{"Brumn Winterhoof","Arathi Highlands","28, 45"},{"Chaw Stronghide","Mulgore","45, 57"},{"Hahrana Ironhide","Feralas","74, 43"},{"Karolek","Orgrimmar","60, 54"},{"Shelenne Rhobart","Tirisfal Glades","65, 60"},{"Una","Thunder Bluff","41, 42"},}},
-    { header="Expert Leatherworking Trainers (150–225)", color={r=1.0,g=0.82,b=0.0}, list={{"Telonis","Darnassus","64, 21",{r=0.58,g=0.8,b=1.0}},{"Una","Thunder Bluff","41, 42",{r=1.0,g=0.55,b=0.55}}}},
-    { header="Artisan Leatherworking Trainers (225–300)", color={r=1.0,g=0.82,b=0.0}, list={{"Drakk Stonehand","Aerie Peak, The Hinterlands","13, 43",{r=0.58,g=0.8,b=1.0}},{"Hahrana Ironhide","Camp Mojache, Feralas","74, 43",{r=1.0,g=0.55,b=0.55}}}},
+    leatherworking = {
+    {
+        header = "Alliance Apprentice and Journeyman Leatherworking Trainers (1–75 and 75–150)",
+        color  = { r=0.58, g=0.8, b=1.0 },
+        list = {
+        {"Aayndia Florawind", "Ashenvale",         "35, 52"},
+        {"Adele Fielder",     "Elwynn Forest",     "46, 62"},
+        {"Drakk Stonehand",   "The Hinterlands",   "13, 43"},
+        {"Fimble Finespindle","Ironforge",         "40, 32"},
+        {"Nadiya Maneweaver", "Teldrassil",        "43, 43"},
+        {"Randal Worth",      "Stormwind City",    "68, 49"},
+        {"Telonis",           "Darnassus",         "64, 21"},
+        },
+    },
+
+    {
+        header = "Horde Apprentice & Journeyman Leatherworking Trainers (1–75 and 75–150)",
+        color  = { r=1.0, g=0.55, b=0.55 },
+        list = {
+        {"Arthur Moore",      "Undercity",             "70, 58"},
+        {"Brawn",             "Stranglethorn Vale",    "37, 50"},
+        {"Brumn Winterhoof",  "Arathi Highlands",      "28, 45"},
+        {"Chaw Stronghide",   "Mulgore",               "45, 57"},
+        {"Hahrana Ironhide",  "Feralas",               "74, 43"},
+        {"Karolek",           "Orgrimmar",             "60, 54"},
+        {"Shelenne Rhobart",  "Tirisfal Glades",       "65, 60"},
+        {"Una",               "Thunder Bluff",         "41, 42"},
+        },
+    },
+
+    -- (Optional) Neutral block for consistency with Alchemy; leave empty if none exist
+    {
+        header = "Neutral Apprentice & Journeyman Leatherworking Trainers (1–75 and 75–150)",
+        color  = { r=0.8, g=0.8, b=0.8 },
+        list   = {
+        -- add neutral trainers here if you have any
+        },
+    },
+
+    {
+        header = "Expert Leatherworking Trainers (150–225)",
+        color  = { r=1.0, g=0.82, b=0.0 },
+        list = {
+        {"Telonis", "Darnassus", "64, 21", { r=0.58, g=0.8, b=1.0 }},  -- Alliance
+        {"Una",     "Thunder Bluff", "41, 42", { r=1.0, g=0.55, b=0.55 }}, -- Horde
+        },
+    },
+
+    {
+        header = "Artisan Leatherworking Trainers (225–300)",
+        color  = { r=1.0, g=0.82, b=0.0 },
+        list = {
+        {"Drakk Stonehand",   "Aerie Peak, The Hinterlands", "13, 43", { r=0.58, g=0.8, b=1.0 }},  -- Alliance
+        {"Hahrana Ironhide",  "Camp Mojache, Feralas",       "74, 43", { r=1.0, g=0.55, b=0.55 }}, -- Horde
+        },
+    },
+    },
+
+    alchemy = {
+    {
+      header = "Alliance Apprentice and Journeyman Alchemy Trainers (1–75 and 75–150)",
+      color  = { r=0.58, g=0.8, b=1.0 },
+      list = {
+        {"Ainethil",               "Darnassus",                      "55, 24"},
+        {"Cyndra Kindwhisper",     "Dolanaar, Teldrassil",          "57.6, 60.6"},
+        {"Ghak Healtouch",         "Thelsamar, Loch Modan",         "37, 49.2"},
+        {"Kylanna Windwhisper",    "Feathermoon Stronghold, Feralas","32.6, 43.8"},
+        {"Kylanna",                "Ashenvale",                      "50, 67"},
+        {"Lilyssia Nightbreeze",   "Mage Quarter, Stormwind",       "46.4, 79.6"},
+        {"Tally Berryfizz",        "Tinker Town, Ironforge",        "67.2, 54.2"},
+        {"Alchemist Mallory",      "Goldshire, Elwynn Forest",      "39.8, 48.6"},
+      },
+    },
+
+    {
+      header = "Horde Apprentice & Journeyman Alchemy Trainers (1–75 and 75–150)",
+      color  = { r=1.0, g=0.55, b=0.55 },
+      list = {
+        {"Bena Winterhoof",        "Thunder Bluff",                 "47, 33"},
+        {"Carolai Anise",          "Brill, Tirisfal Glades",        "59.4, 52.2"},
+        {"Miao'zan",               "Sen'jin Village, Durotar",      "55.4, 74"},
+        {"Rogvar",                 "Stonard, Swamp of Sorrows",     "48.4, 55.6"},
+        {"Doctor Herbert Halsey",  "The Apothecarium, Undercity",   "48.2, 72.2"},
+        {"Serge Hinott",           "Tarren Mill, Hillsbrad",        "61.6, 19.2"},
+        {"Yelmak",                 "The Drag, Orgrimmar",           "56.6, 33.2"},
+      },
+    },
+
+    {
+      header = "Neutral Apprentice & Journeyman Alchemy Trainers (1–75 and 75–150)",
+      color  = { r=0.8, g=0.8, b=0.8 },
+      list = {
+        {"Jaxin Chong",            "Booty Bay, Stranglethorn Vale", "28, 78"},
+      },
+    },
+
+    {
+      header = "Expert Alchemy Trainers (150–225)",
+      color  = { r=1.0, g=0.82, b=0.0 },
+      list = {
+        {"Ainethil",               "Darnassus",                      "55, 24",              {r=0.58,g=0.8,b=1.0}},
+        {"Kylanna Windwhisper",    "Feathermoon Stronghold, Feralas","32.6, 43.8",          {r=0.58,g=0.8,b=1.0}},
+        {"Rogvar",                 "Stonard, Swamp of Sorrows",      "48.4, 55.6",          {r=1.0,g=0.55,b=0.55}},
+        {"Doctor Herbert Halsey",  "The Apothecarium, Undercity",    "48.2, 72.2",          {r=1.0,g=0.55,b=0.55}},
+      },
+    },
+
+    {
+      header = "Artisan Alchemy Trainers (225–300)",
+      color  = { r=1.0, g=0.82, b=0.0 },
+      list = {
+        {"Kylanna Windwhisper",    "Feathermoon Stronghold, Feralas","32.6, 43.8",          {r=0.58,g=0.8,b=1.0}},
+        {"Rogvar",                 "Stonard, Swamp of Sorrows",      "48.4, 55.6",          {r=1.0,g=0.55,b=0.55}},
+      },
+    },
   },
+
 }
 
 local function BuildTrainerGeneric(parent, PROF)
@@ -155,7 +262,10 @@ local function estimateByGuide(D, cur, tgt)
   return need
 end
 
-local function CreateMatRow(parent, D, index, mat, count, delta)
+-- Create one material row in the shopping list
+-- rightNote: optional grey note appended to the line (e.g. "(partial 18/59 for 60–110)")
+-- meta: { consumer="Recipe Name", brFrom=60, brTo=110, full=59, needed=18 }  -- optional extra tooltip info
+local function CreateMatRow(parent, D, index, mat, count, delta, rightNote, meta)
   local row = CreateFrame("Frame", nil, parent)
   row:SetWidth(360); row:SetHeight(ROW_H)
   if index==1 then row:SetPoint("TOPLEFT", parent, "TOPLEFT", LEFT_PADDING, -2)
@@ -171,8 +281,10 @@ local function CreateMatRow(parent, D, index, mat, count, delta)
   local need  = tonumber(count or 0) or 0
   local took  = tonumber(delta or 0) or 0
   local tail  = (took > 0) and (" |cff88ff88(-"..took..")|r") or ""
-  fs:SetText(mat.."  x"..need..tail)
+  local rnote = rightNote and (" |cffaaaaaa"..rightNote.."|r") or ""
+  fs:SetText(mat.."  x"..need..tail..rnote)
 
+  -- Source badge (Vendor / AH/Created / AH/Farm)
   local badge = row:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
   badge:SetPoint("RIGHT", row, "RIGHT", 0, 0)
   if D and D.IsVendor and D.IsVendor(mat) then
@@ -183,6 +295,7 @@ local function CreateMatRow(parent, D, index, mat, count, delta)
     badge:SetText("|cff00ff00[AH/Farm]|r")
   end
 
+  -- Tooltip with inventory counts + optional meta info for intermediates
   local function attachHover(target)
     local hot = CreateFrame("Frame", nil, row)
     hot:SetFrameLevel(row:GetFrameLevel() + 1)
@@ -190,8 +303,8 @@ local function CreateMatRow(parent, D, index, mat, count, delta)
     hot:EnableMouse(true)
     hot:SetScript("OnEnter", function()
       local have = ((D and D.CountInBagsAndBank) and D.CountInBagsAndBank(mat)) or 0
-      local need = tonumber(count or 0) or 0
-      local remaining = math.max(need - have, 0)
+      local needQty = tonumber(count or 0) or 0
+      local remaining = math.max(needQty - have, 0)
 
       local bags, bank = 0, 0
       if D and D.SplitCounts then bags, bank = D.SplitCounts(mat) end
@@ -214,8 +327,21 @@ local function CreateMatRow(parent, D, index, mat, count, delta)
       tip:ClearLines()
       tip:AddLine(mat, 1, 0.82, 0, true)
       tip:AddLine(string.format("You have: |cff88ff88%d|r", have))
-      tip:AddLine(string.format("Need: |cffffff00%d|r", need))
+      tip:AddLine(string.format("Need: |cffffff00%d|r", needQty))
       tip:AddLine(string.format("Remaining: |cffff5555%d|r", remaining))
+
+      -- Extra context for intermediates so new players understand "partial"
+      if meta then
+        if meta.consumer then
+          tip:AddLine("|cffaaaaaaUsed to craft:|r ".."|cffffd100"..meta.consumer.."|r")
+        end
+        if meta.brFrom and meta.brTo and meta.full then
+          tip:AddLine(string.format("Bracket %d–%d requires: %d", meta.brFrom, meta.brTo, meta.full), 0.7, 0.7, 0.7)
+          if meta.needed then
+            tip:AddLine(string.format("This plan needs now: %d", meta.needed), 0.7, 0.7, 0.7)
+          end
+        end
+      end
 
       local locText
       if have == 0 then
@@ -237,6 +363,8 @@ local function CreateMatRow(parent, D, index, mat, count, delta)
   attachHover(fs)
   return row
 end
+
+
 
 local function CreateRecipeRow(parent, D, PROF, anchor, st)
   local row = CreateFrame("Frame", nil, parent)
@@ -372,6 +500,34 @@ local function BuildShoppingGeneric(parent, PROF)
     return string.format("Shopping list %d -> %d (Guide):", fromL, toL), mats, fromL, toL
   end
 
+    -- Helper: is this mat a craftable item (has its own recipe)?
+    local function IsIntermediate(D, matName)
+    return D and D.RECIPE_STEPS and (function()
+        for _, r in ipairs(D.RECIPE_STEPS) do
+        if r.name == matName then return true end
+        end
+        return false
+    end)()
+    end
+
+    -- returns: need, bracketFrom, bracketTo
+    local function FullBracketNeed(D, matName, fromL, toL)
+    if not (D and D.GUIDE_STEPS and fromL and toL) then return nil end
+    for _, g in ipairs(D.GUIDE_STEPS) do
+        if g.from <= toL and g.to >= fromL then
+        local spec = g.mats and g.mats[matName]
+        if type(spec) == "number" then
+            return spec, g.from, g.to
+        elseif type(spec) == "table" and spec.total then
+            return spec.total, g.from, g.to
+        end
+        end
+    end
+    end
+
+
+
+
   function render(target)
     currentTarget = target
     HideTooltip()
@@ -388,11 +544,13 @@ local function BuildShoppingGeneric(parent, PROF)
     if not s then
       title, mats, fromL, toL = (PROF.label .. " not learned."), {}, nil, nil
     elseif s >= target then
+      -- Schon über dem Ziel: trotzdem Rezepte der Ziel-Klammer zeigen
       local fromB = bracketStartFor(target)
       title = string.format("You already have %d in %s.", s, PROF.label)
       mats  = {}
       fromL, toL = nil, nil
     else
+      -- Normalfall: aktuellem Skill -> Ziel zeigen (inkl. Rezepte)
       mats  = estimateByGuide(D, s, target)
       title = string.format("Shopping list for %s %d -> %d (Guide):", PROF.label, s, target)
       fromL, toL = s, target
@@ -417,24 +575,83 @@ local function BuildShoppingGeneric(parent, PROF)
       mats = {}
     end
 
-    local keys, kN = {}, 0
-    for k,_ in pairs(mats) do if k ~= "_invDelta" then kN = kN + 1; keys[kN] = k end end
+    -- Split mats into RAW vs INTERMEDIATES (only if PROF.showIntermediates)
+local rawList, intermList = {}, {}
+for matName, qty in pairs(mats) do
+  if matName ~= "_invDelta" and type(qty) == "number" and qty > 0 then
+    if PROF.showIntermediates and IsIntermediate(D, matName) then
+      intermList[matName] = qty
+    else
+      rawList[matName] = qty
+    end
+  end
+end
 
-    local less = (D and D.SortKeyLess) or function(a,b) return tostring(a) < tostring(b) end
-    for i=2, kN do local v=keys[i]; local j=i-1; while j>=1 and less(v, keys[j]) do keys[j+1]=keys[j]; j=j-1 end; keys[j+1]=v end
+local function sortKeys(tbl)
+  local keys, n = {}, 0
+  for k,_ in pairs(tbl) do n = n + 1; keys[n] = k end
+  local less = (D and D.SortKeyLess) or function(a,b) return tostring(a) < tostring(b) end
+  for i=2, n do
+    local v = keys[i]; local j = i-1
+    while j>=1 and less(v, keys[j]) do keys[j+1] = keys[j]; j = j-1 end
+    keys[j+1] = v
+  end
+  return keys, n
+end
 
-    local count = 0
-    for i=1, kN do
-      local m, n = keys[i], mats[keys[i]]
-      if n and n > 0 then
-        count = count + 1
-        local delta = mats._invDelta and mats._invDelta[m] or 0
-        CreateMatRow(matsArea, D, count, m, n, delta)
+local count = 0
+
+-- 1) RAW MATERIALS
+local keysRaw, nRaw = sortKeys(rawList)
+local count = 0
+for i = 1, nRaw do
+  local m = keysRaw[i]
+  local n = rawList[m]
+  local delta = mats._invDelta and mats._invDelta[m] or 0
+  count = count + 1
+  CreateMatRow(matsArea, D, count, m, n, delta) -- no note on raw mats
+end
+
+-- 2) INTERMEDIATES (only if PROF.showIntermediates)
+if PROF.showIntermediates then
+  local keysInt, nInt = sortKeys(intermList)
+  for i = 1, nInt do
+    local m = keysInt[i]
+    local n = intermList[m]
+    local delta = mats._invDelta and mats._invDelta[m] or 0
+
+    -- find full bracket need and the consuming recipe (if any)
+    local needFull, brFrom, brTo = FullBracketNeed(D, m, fromL, toL)
+    local note, meta
+    if type(needFull) == "number" then
+      note = (n < needFull)
+        and string.format("(partial %d/%d)", n, needFull, brFrom, brTo)
+
+      -- optional: show the consumer recipe in the tooltip
+      local consumer
+      if D and D.RECIPE_STEPS then
+        for _, st in ipairs(D.RECIPE_STEPS) do
+          if st.from == brFrom and st.to == brTo and st.name ~= m then
+            consumer = st.name
+            break
+          end
+        end
       end
+      meta = { consumer = consumer, brFrom = brFrom, brTo = brTo, full = needFull, needed = n }
     end
 
-    local inner_h = math.max(20, count * (ROW_H + 4))
-    matsArea:SetWidth(620); matsArea:SetHeight(inner_h)
+    count = count + 1
+    CreateMatRow(matsArea, D, count, m, n, delta, note, meta)
+  end
+end
+
+-- size after we added all rows once
+local inner_h = math.max(20, count * (ROW_H + 4))
+matsArea:SetWidth(620); matsArea:SetHeight(inner_h)
+
+
+
+
 
     if not (fromL and toL) then
       if rule and rule.Hide then rule:Hide() end

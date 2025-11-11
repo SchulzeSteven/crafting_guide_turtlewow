@@ -6,6 +6,7 @@ local PROF = {
   names = {"Alchemy","Alchimie"},
   label = "Alchemy",
   prefix = "al",
+  showIntermediates = true,
 }
 
 Common.RegisterProfession(PROF)

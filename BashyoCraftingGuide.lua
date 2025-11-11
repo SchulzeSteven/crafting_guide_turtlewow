@@ -16,7 +16,7 @@ function BCG:RegisterPage(key, label, buildFunc)
   self.pages[key] = {label=label, build=buildFunc}
 end
 
--- ===== Prefix -> Section Label (for Tabs/Header) =====
+-- ===== Prefix -> Section Label (für Tabs/Überschrift) =====
 local PREFIX_LABELS = {
   al  = "Alchemy",
   bs  = "Blacksmithing",
@@ -26,27 +26,27 @@ local PREFIX_LABELS = {
   ta  = "Tailoring",
 }
 
--- ===== Tab-Bar & Section Header (generic, prefix-based) =====
+-- ===== Tab-Bar & Section-Header (generisch, prefix-basiert) =====
 local function BCG_RebuildTabs(sectionKey)
   local f = BCG.ui and BCG.ui.frame
   if not f then return end
 
-  -- Hide previous tab buttons
+  -- Vorherige Tab-Buttons verstecken
   for _, b in pairs(BCG.ui.buttons or {}) do
     if b.Hide then b:Hide() end
   end
   BCG.ui.buttons = {}
 
-  -- Extract prefix from key (e.g. "lw_trainer" -> "lw")
+  -- Prefix aus key (z.B. "lw_trainer" -> "lw")
   local prefix = nil
-  if type(sectionKey) == "string" then
-    local us = string.find(sectionKey, "_")
-    if us and us > 1 then
-      prefix = string.sub(sectionKey, 1, us - 1)
-    end
+if type(sectionKey) == "string" then
+  local us = string.find(sectionKey, "_")
+  if us and us > 1 then
+    prefix = string.sub(sectionKey, 1, us - 1)
   end
-  local label  = prefix and PREFIX_LABELS[prefix] or nil
-  local isProfession = (label ~= nil)
+end
+local label  = prefix and PREFIX_LABELS[prefix] or nil
+local isProfession = (label ~= nil)
 
   local tabs
   if isProfession then
@@ -56,7 +56,7 @@ local function BCG_RebuildTabs(sectionKey)
     }
   end
 
-  -- Section label
+  -- Section-Label
   if not BCG.ui.sectionLabel then
     local labelFS = f:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
     labelFS:SetPoint("TOPLEFT", f, "TOPLEFT", 36, -18)
@@ -65,7 +65,7 @@ local function BCG_RebuildTabs(sectionKey)
     BCG.ui.sectionLabel = labelFS
   end
 
-  -- Underline
+  -- Unterstreichung
   if not BCG.ui.sectionUnderline then
     local line = f:CreateTexture(nil, "ARTWORK")
     line:SetTexture("Interface\\Buttons\\WHITE8x8")
@@ -86,7 +86,7 @@ local function BCG_RebuildTabs(sectionKey)
     if BCG.ui.sectionUnderline then BCG.ui.sectionUnderline:Hide() end
   end
 
-  -- Back-to-Hub button
+  -- Back-to-Hub
   if not BCG.ui.backToHub then
     local b = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
     b:SetWidth(80); b:SetHeight(22)
@@ -108,7 +108,7 @@ local function BCG_RebuildTabs(sectionKey)
 
   if not tabs then return end
 
-  -- Center tabs horizontally (Lua 5.0 compatible)
+  -- Tabs mittig ausrichten (Lua 5.0 kompatibel)
   local buttonWidth, spacing = 90, 10
   local count = table.getn(tabs)
   local totalWidth = buttonWidth * count + spacing * (count - 1)
@@ -132,7 +132,7 @@ local function BCG_RebuildTabs(sectionKey)
   end
 end
 
--- ===== Page Switching =====
+-- ===== Page Switch =====
 local function BCG_ShowPage(key)
   local ui = BCG.ui
   if not ui.frame then return end
@@ -148,7 +148,7 @@ local function BCG_ShowPage(key)
   ui.scroll:SetScrollChild(content)
   ui.currentKey = key
 
-  -- Scrollbar handling
+  -- Scrollbar-Handling
   local s = ui.scroll
   if s then
     local name = s.GetName and s:GetName() or nil
@@ -157,7 +157,6 @@ local function BCG_ShowPage(key)
     local dn   = name and _G[name.."ScrollBarScrollDownButton"] or nil
 
     if key == "hub" then
-      -- Hide scrollbar on Hub page
       if sb then sb:Hide(); if sb.SetAlpha then sb:SetAlpha(0) end end
       if up then up:Hide(); if up.SetAlpha then up:SetAlpha(0) end end
       if dn then dn:Hide(); if dn.SetAlpha then dn:SetAlpha(0) end end
@@ -169,7 +168,6 @@ local function BCG_ShowPage(key)
       if s.EnableMouseWheel then s:EnableMouseWheel(false) end
       if s.SetVerticalScroll then s:SetVerticalScroll(0) end
     else
-      -- Enable scrollbar on profession pages
       if sb then if sb.SetAlpha then sb:SetAlpha(1) end; if sb.Show then sb:Show() end end
       if up then if up.SetAlpha then up:SetAlpha(1) end; if up.Show then up:Show() end end
       if dn then if dn.SetAlpha then dn:SetAlpha(1) end; if dn.Show then dn:Show() end end
@@ -184,7 +182,7 @@ local function BCG_ShowPage(key)
 end
 BCG.ShowPage = BCG_ShowPage
 
--- ===== Main Frame Initialization =====
+-- ===== Main Frame =====
 local function BCG_CreateMainFrame()
   if BCG.ui.frame then return BCG.ui.frame end
 
@@ -250,7 +248,7 @@ ev:SetScript("OnEvent", function()
   msg("loaded. Use |cffffff00/bcg|r to open.")
 end)
 
--- ===== Bank Cache System (now supports ALL registered professions) =====
+-- ===== Bank Cache System (jetzt für ALLE registrierten Berufe) =====
 local bankEv = CreateFrame("Frame")
 bankEv:RegisterEvent("BANKFRAME_OPENED")
 bankEv:RegisterEvent("PLAYERBANKSLOTS_CHANGED")
@@ -262,21 +260,22 @@ bankEv:SetScript("OnEvent", function(_, evt)
   BashyoCraftingGuide_SV.bankCache = BashyoCraftingGuide_SV.bankCache or {}
 
   if evt == "BANKFRAME_OPENED" or evt == "PLAYERBANKSLOTS_CHANGED" then
-    -- Try to update all registered professions
+    -- Versuche alle registrierten Professionen zu aktualisieren
     if BashyoCraftingGuide and BashyoCraftingGuide.Data then
       local Data = BashyoCraftingGuide.Data
 
-      -- New architecture: multiple registered professions
+      -- 1) Wenn ein Registry vorhanden ist (neue Architektur)
       if type(Data.Get) == "function" and type(Data._byKey) == "table" then
         for _, D in pairs(Data._byKey) do
           if D and D.MAT_ITEM_IDS and D.SplitCounts then
             for matName, _ in pairs(D.MAT_ITEM_IDS) do
+              -- Aufruf aktualisiert intern den Bank-Cache für die ItemIDs
               local _bags, _bank = D.SplitCounts(matName)
             end
           end
         end
 
-      -- Legacy fallback: Leatherworking only
+      -- 2) Fallback: nur Leatherworking bekannt (alte Architektur)
       elseif Data.Leatherworking and Data.Leatherworking.MAT_ITEM_IDS and Data.Leatherworking.SplitCounts then
         local D = Data.Leatherworking
         for matName, _ in pairs(D.MAT_ITEM_IDS) do

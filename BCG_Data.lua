@@ -255,14 +255,182 @@ D_LW.RECIPE_STEPS = {
 BashyoCraftingGuide.Data.Register("leatherworking", D_LW)
 
 -- ============================================
--- Templates for other professions (empty data)
+-- ALCHEMY data (Classic 1–300)
 -- ============================================
+local D_AL = makeD()
+
+-- Vendor-purchased reagents
+D_AL.VENDOR_MATS = {
+  ["Empty Vial"]  = true,
+  ["Leaded Vial"] = true,
+  ["Crystal Vial"]= true,
+}
+D_AL.CREATED_MATS = { ["Minor Healing Potion"] = true }
+
+D_AL.MAT_ICONS = {
+  -- Herbs
+  ["Peacebloom"]          = "Interface\\Icons\\inv_misc_flower_02",
+  ["Silverleaf"]          = "Interface\\Icons\\inv_misc_herb_10",
+  ["Mageroyal"]           = "Interface\\Icons\\inv_jewelry_talisman_03",
+  ["Briarthorn"]          = "Interface\\Icons\\inv_misc_root_01",
+  ["Stranglekelp"]        = "Interface\\Icons\\inv_misc_herb_11",
+  ["Bruiseweed"]          = "Interface\\Icons\\inv_misc_herb_01",
+  ["Wild Steelbloom"]     = "Interface\\Icons\\inv_misc_flower_01",
+  ["Kingsblood"]          = "Interface\\Icons\\inv_misc_herb_03",
+  ["Liferoot"]            = "Interface\\Icons\\inv_misc_root_02",
+  ["Goldthorn"]           = "Interface\\Icons\\inv_misc_herb_15",
+  ["Khadgar's Whisker"]   = "Interface\\Icons\\inv_misc_herb_08",
+  ["Arthas' Tears"]       = "Interface\\Icons\\inv_misc_herb_13",
+  ["Sungrass"]            = "Interface\\Icons\\inv_misc_herb_18",
+  ["Blindweed"]           = "Interface\\Icons\\inv_misc_herb_14",
+  ["Golden Sansam"]       = "Interface\\Icons\\INV_Misc_Herb_SansamRoot",
+  ["Mountain Silversage"] = "Interface\\Icons\\INV_Misc_Herb_MountainSilverSage",
+  ["Purple Lotus"]        = "Interface\\Icons\\inv_misc_herb_17",
+  ["Firebloom"]           = "Interface\\Icons\\INV_Misc_Herb_19",
+
+  -- Other reagents
+  ["Iron Bar"]            = "Interface\\Icons\\INV_Ingot_Iron",
+  ["Black Vitriol"]       = "Interface\\Icons\\inv_misc_gem_sapphire_03",
+
+  -- Vials (vendor)
+  ["Empty Vial"]          = "Interface\\Icons\\INV_Drink_06",
+  ["Leaded Vial"]         = "Interface\\Icons\\inv_drink_06",
+  ["Crystal Vial"]        = "Interface\\Icons\\inv_drink_06",
+
+  -- Potions / Elixirs
+  ["Minor Healing Potion"]        = "Interface\\Icons\\INV_Potion_49",
+  ["Lesser Healing Potion"]       = "Interface\\Icons\\inv_potion_50",
+  ["Healing Potion"]              = "Interface\\Icons\\inv_potion_51",
+  ["Lesser Mana Potion"]          = "Interface\\Icons\\inv_potion_71",
+  ["Greater Healing Potion"]      = "Interface\\Icons\\inv_potion_52",
+  ["Elixir of Agility"]           = "Interface\\Icons\\inv_potion_93",
+  ["Elixir of Greater Defense"]   = "Interface\\Icons\\inv_potion_65",
+  ["Superior Healing Potion"]     = "Interface\\Icons\\inv_potion_53",
+  ["Philosophers' Stone"]         = "Interface\\Icons\\INV_Misc_Orb_01",
+  ["Elixir of Detect Undead"]     = "Interface\\Icons\\inv_potion_53",
+  ["Elixir of Greater Agility"]   = "Interface\\Icons\\INV_Potion_94",
+  ["Superior Mana Potion"]        = "Interface\\Icons\\INV_Potion_74",
+  ["Major Healing Potion"]        = "Interface\\Icons\\INV_Potion_54",
+}
+
+
+-- Potion/Elixir item IDs (used for tooltips and when they appear as reagents)
+D_AL.RECIPE_ITEM_IDS = {
+  ["Minor Healing Potion"]   = 118,
+  ["Lesser Healing Potion"]  = 858,
+  ["Healing Potion"]         = 929,
+  ["Lesser Mana Potion"]     = 3385,
+  ["Greater Healing Potion"] = 1710,
+  ["Elixir of Agility"]      = 2457,
+  ["Elixir of Greater Defense"]= 8951,
+  ["Superior Healing Potion"]= 3928,
+  ["Philosophers' Stone"]    = 9149,
+  ["Elixir of Detect Undead"]= 9154,
+  ["Elixir of Greater Agility"]= 9187,
+  ["Superior Mana Potion"]   = 13443,
+  ["Major Healing Potion"]   = 13446,
+}
+
+-- Material item IDs (herbs, vials, bars, etc.)
+D_AL.MAT_ITEM_IDS = {
+  -- Herbs
+  ["Peacebloom"]           = 2447,
+  ["Silverleaf"]           = 765,
+  ["Mageroyal"]            = 785,
+  ["Briarthorn"]           = 2450,
+  ["Stranglekelp"]         = 3820,
+  ["Bruiseweed"]           = 2453,
+  ["Wild Steelbloom"]      = 3355,
+  ["Kingsblood"]           = 3356,
+  ["Liferoot"]             = 3357,
+  ["Goldthorn"]            = 3821,
+  ["Khadgar's Whisker"]    = 3358,
+  ["Arthas' Tears"]        = 8836,
+  ["Sungrass"]             = 8838,
+  ["Blindweed"]            = 8839,
+  ["Golden Sansam"]        = 13464,
+  ["Mountain Silversage"]  = 13465,
+  ["Purple Lotus"]         = 8831,
+  ["Firebloom"]            = 4625,
+
+  -- Other reagents
+  ["Iron Bar"]             = 3575,
+  ["Black Vitriol"]        = 9262,
+
+  -- Vials (vendor)
+  ["Empty Vial"]           = 3371,
+  ["Leaded Vial"]          = 3372,
+  ["Crystal Vial"]         = 8925,
+
+  -- Potions that are used as reagents in later steps
+  ["Minor Healing Potion"]   = 118,
+  ["Lesser Healing Potion"]  = 858,
+  ["Healing Potion"]         = 929,
+  ["Lesser Mana Potion"]     = 3385,
+  ["Greater Healing Potion"] = 1710,
+  ["Elixir of Agility"]      = 2457,
+  ["Elixir of Greater Defense"]= 8951,
+  ["Superior Healing Potion"]= 3928,
+  ["Philosophers' Stone"]    = 9149,
+  ["Elixir of Detect Undead"]= 9154,
+  ["Elixir of Greater Agility"]= 9187,
+  ["Superior Mana Potion"]   = 13443,
+  ["Major Healing Potion"]   = 13446,
+}
+
+-- Sorting hint (puts herbs roughly by progression; vials after herbs)
+D_AL.SORT_WEIGHT = {
+  ["Peacebloom"]=10, ["Silverleaf"]=11, ["Mageroyal"]=20, ["Briarthorn"]=21,
+  ["Bruiseweed"]=30, ["Stranglekelp"]=31, ["Wild Steelbloom"]=32, ["Kingsblood"]=33, ["Liferoot"]=34,
+  ["Goldthorn"]=40, ["Khadgar's Whisker"]=41, ["Arthas' Tears"]=42,
+  ["Sungrass"]=50, ["Blindweed"]=51, ["Purple Lotus"]=52, ["Firebloom"]=53,
+  ["Golden Sansam"]=60, ["Mountain Silversage"]=61,
+  ["Iron Bar"]=70, ["Black Vitriol"]=71,
+  ["Empty Vial"]=90, ["Leaded Vial"]=91, ["Crystal Vial"]=92,
+}
+
+-- Guide-derived material needs per range (as shown in your screenshots)
+D_AL.GUIDE_STEPS = {
+  {from=1,   to=60,  mats={ ["Peacebloom"]=59, ["Silverleaf"]=59, ["Empty Vial"]=59 }},
+  {from=60,  to=110, mats={ ["Minor Healing Potion"]=59, ["Briarthorn"]=59 }},
+  {from=110, to=140, mats={ ["Bruiseweed"]=30, ["Briarthorn"]=30, ["Leaded Vial"]=30 }},
+  {from=140, to=155, mats={ ["Mageroyal"]=15, ["Stranglekelp"]=15, ["Empty Vial"]=15 }},
+  {from=155, to=185, mats={ ["Liferoot"]=30, ["Kingsblood"]=30, ["Leaded Vial"]=30 }},
+  {from=185, to=210, mats={ ["Stranglekelp"]=25, ["Goldthorn"]=25, ["Leaded Vial"]=25 }},
+  {from=210, to=215, mats={ ["Wild Steelbloom"]=10, ["Goldthorn"]=10, ["Leaded Vial"]=10 }},
+  {from=215, to=230, mats={ ["Sungrass"]=15, ["Khadgar's Whisker"]=15, ["Crystal Vial"]=15 }},
+  {from=230, to=231, mats={ ["Iron Bar"]=4, ["Black Vitriol"]=1, ["Purple Lotus"]=4, ["Firebloom"]=4 }}, -- Philosopher's Stone
+  {from=231, to=250, mats={ ["Arthas' Tears"]=19, ["Crystal Vial"]=19 }},
+  {from=250, to=265, mats={ ["Sungrass"]=15, ["Goldthorn"]=15, ["Crystal Vial"]=15 }},
+  {from=265, to=285, mats={ ["Sungrass"]=40, ["Blindweed"]=40, ["Crystal Vial"]=20 }},
+  {from=285, to=300, mats={ ["Golden Sansam"]=36, ["Mountain Silversage"]=18, ["Crystal Vial"]=18 }},
+}
+
+-- Recipes to show per range (counts from your screenshots; ~ marks approximations)
+D_AL.RECIPE_STEPS = {
+  {from=1,   to=60,  name="Minor Healing Potion",        icon="Minor Healing Potion",        count=59},
+  {from=60,  to=110, name="Lesser Healing Potion",       icon="Lesser Healing Potion",       count=59},
+  {from=110, to=140, name="Healing Potion",              icon="Healing Potion",              count=30},
+  {from=140, to=155, name="Lesser Mana Potion",          icon="Lesser Mana Potion",          count=15},
+  {from=155, to=185, name="Greater Healing Potion",      icon="Greater Healing Potion",      count=30},
+  {from=185, to=210, name="Elixir of Agility",           icon="Elixir of Agility",           count=25},
+  {from=210, to=215, name="Elixir of Greater Defense",   icon="Elixir of Greater Defense",   count=10},
+  {from=215, to=230, name="Superior Healing Potion",     icon="Superior Healing Potion",     count=15},
+  {from=230, to=231, name="Philosophers' Stone",         icon="Philosophers' Stone",         count=1},
+  {from=231, to=250, name="Elixir of Detect Undead",     icon="Elixir of Detect Undead",     count=19},
+  {from=250, to=265, name="Elixir of Greater Agility",   icon="Elixir of Greater Agility",   count=15},
+  {from=265, to=285, name="Superior Mana Potion",        icon="Superior Mana Potion",        count=20},
+  {from=285, to=300, name="Major Healing Potion",        icon="Major Healing Potion",        count=18, approx=true},
+}
+
+BashyoCraftingGuide.Data.Register("alchemy", D_AL)
+
+
 local function registerEmpty(profKey)
   local d = makeD()
   BashyoCraftingGuide.Data.Register(profKey, d)
 end
 
-registerEmpty("alchemy")
 registerEmpty("blacksmithing")
 registerEmpty("enchanting")
 registerEmpty("engineering")
