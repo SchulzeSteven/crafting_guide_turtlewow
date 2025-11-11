@@ -67,7 +67,7 @@ It provides a central hub, automatic material calculations, and convenient acces
 
 2. Move the folder into your WoW AddOns directory, for example:
    ```
-   World of Warcraft/_classic_/Interface/AddOns/BashyoCraftingGuide
+   TurtleWow/Interface/AddOns/BashyoCraftingGuide
    ```
 
 3. Start the game and type:
