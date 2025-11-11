@@ -388,13 +388,11 @@ local function BuildShoppingGeneric(parent, PROF)
     if not s then
       title, mats, fromL, toL = (PROF.label .. " not learned."), {}, nil, nil
     elseif s >= target then
-      -- Schon über dem Ziel: trotzdem Rezepte der Ziel-Klammer zeigen
       local fromB = bracketStartFor(target)
       title = string.format("You already have %d in %s.", s, PROF.label)
       mats  = {}
       fromL, toL = nil, nil
     else
-      -- Normalfall: aktuellem Skill -> Ziel zeigen (inkl. Rezepte)
       mats  = estimateByGuide(D, s, target)
       title = string.format("Shopping list for %s %d -> %d (Guide):", PROF.label, s, target)
       fromL, toL = s, target
