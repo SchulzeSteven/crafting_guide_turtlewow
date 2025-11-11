@@ -84,10 +84,10 @@ It provides a central hub, automatic material calculations, and convenient acces
 
 ### 📸 Preview
 
+<img width="500" height="842" alt="Screenshot 2025-11-11 165511" src="https://github.com/user-attachments/assets/fb6e2a84-7630-4f51-88ec-6e130e119e96" />
+<img width="500" height="844" alt="Screenshot 2025-11-11 165554" src="https://github.com/user-attachments/assets/96de83e8-2acb-440c-a8e3-3a6a15082b8a" />
 <img width="500" height="841" alt="Screenshot 2025-11-11 165803" src="https://github.com/user-attachments/assets/06a0d3b9-04ab-450d-b102-40e10ce295a6" />
 <img width="500" height="844" alt="Screenshot 2025-11-11 165656" src="https://github.com/user-attachments/assets/47f407a9-119d-453e-a62b-7e8f4d1da776" />
-<img width="500" height="844" alt="Screenshot 2025-11-11 165554" src="https://github.com/user-attachments/assets/96de83e8-2acb-440c-a8e3-3a6a15082b8a" />
-<img width="500" height="842" alt="Screenshot 2025-11-11 165511" src="https://github.com/user-attachments/assets/fb6e2a84-7630-4f51-88ec-6e130e119e96" />
 <img width="500" height="844" alt="Screenshot 2025-11-11 165833" src="https://github.com/user-attachments/assets/d6a80df3-c532-4967-a0df-02ee2fa6179f" />
 
 ---
