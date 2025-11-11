@@ -16,61 +16,77 @@ function BCG:RegisterPage(key, label, buildFunc)
   self.pages[key] = {label=label, build=buildFunc}
 end
 
--- Dynamically builds the top tab bar depending on the current section
--- (e.g., for keys starting with "lw_" -> Leatherworking)
+-- ===== Prefix -> Section Label (for Tabs/Header) =====
+local PREFIX_LABELS = {
+  al  = "Alchemy",
+  bs  = "Blacksmithing",
+  en  = "Enchanting",
+  eng = "Engineering",
+  lw  = "Leatherworking",
+  ta  = "Tailoring",
+}
+
+-- ===== Tab-Bar & Section Header (generic, prefix-based) =====
 local function BCG_RebuildTabs(sectionKey)
   local f = BCG.ui and BCG.ui.frame
   if not f then return end
 
-  -- Remove previously created tab buttons
+  -- Hide previous tab buttons
   for _, b in pairs(BCG.ui.buttons or {}) do
     if b.Hide then b:Hide() end
   end
   BCG.ui.buttons = {}
 
-  local tabs
-  local isLeatherworking = (type(sectionKey) == "string" and string.sub(sectionKey, 1, 3) == "lw_")
+  -- Extract prefix from key (e.g. "lw_trainer" -> "lw")
+  local prefix = nil
+  if type(sectionKey) == "string" then
+    local us = string.find(sectionKey, "_")
+    if us and us > 1 then
+      prefix = string.sub(sectionKey, 1, us - 1)
+    end
+  end
+  local label  = prefix and PREFIX_LABELS[prefix] or nil
+  local isProfession = (label ~= nil)
 
-  if isLeatherworking then
+  local tabs
+  if isProfession then
     tabs = {
-      { key="lw_trainer",  text="Trainer"  },
-      { key="lw_shopping", text="Shopping" },
+      { key = prefix .. "_trainer",  text = "Trainer"  },
+      { key = prefix .. "_shopping", text = "Shopping" },
     }
   end
 
-  -- ===== Section Label above the Tabs =====
+  -- Section label
   if not BCG.ui.sectionLabel then
-    local label = f:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
-    label:SetPoint("TOPLEFT", f, "TOPLEFT", 36, -18)
-    label:SetTextColor(1, 0.82, 0)
-    label:Hide()
-    BCG.ui.sectionLabel = label
+    local labelFS = f:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+    labelFS:SetPoint("TOPLEFT", f, "TOPLEFT", 36, -18)
+    labelFS:SetTextColor(1, 0.82, 0)
+    labelFS:Hide()
+    BCG.ui.sectionLabel = labelFS
   end
 
-  -- Underline below the section title
+  -- Underline
   if not BCG.ui.sectionUnderline then
     local line = f:CreateTexture(nil, "ARTWORK")
-    line:SetTexture("Interface\\Buttons\\WHITE8x8") -- default WoW texture
-    line:SetVertexColor(1, 0.82, 0, 1) -- golden tone
+    line:SetTexture("Interface\\Buttons\\WHITE8x8")
+    line:SetVertexColor(1, 0.82, 0, 1)
     line:SetHeight(1)
-    line:SetPoint("TOPLEFT", f, "TOPLEFT", 16, -34)
+    line:SetPoint("TOPLEFT",  f, "TOPLEFT",  16, -34)
     line:SetPoint("TOPRIGHT", f, "TOPRIGHT", -16, -34)
     line:Hide()
     BCG.ui.sectionUnderline = line
   end
 
-  if isLeatherworking then
-    BCG.ui.sectionLabel:SetText("Leatherworking")
+  if isProfession then
+    BCG.ui.sectionLabel:SetText(label)
     BCG.ui.sectionLabel:Show()
     BCG.ui.sectionUnderline:Show()
   else
     BCG.ui.sectionLabel:Hide()
-    if BCG.ui.sectionUnderline then
-      BCG.ui.sectionUnderline:Hide()
-    end
+    if BCG.ui.sectionUnderline then BCG.ui.sectionUnderline:Hide() end
   end
 
-  -- ===== Back to Hub button (only shown in Leatherworking section) =====
+  -- Back-to-Hub button
   if not BCG.ui.backToHub then
     local b = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
     b:SetWidth(80); b:SetHeight(22)
@@ -82,39 +98,33 @@ local function BCG_RebuildTabs(sectionKey)
     BCG.ui.backToHub = b
   end
 
-  if isLeatherworking then
+  if isProfession then
     BCG.ui.backToHub:Show()
     BCG.ui.backToHub:ClearAllPoints()
     BCG.ui.backToHub:SetPoint("TOPLEFT", f, "TOPLEFT", 22, -44)
   else
     if BCG.ui.backToHub then BCG.ui.backToHub:Hide() end
   end
-  -- ===== End Back-to-Hub =====
 
   if not tabs then return end
 
-  -- === Center tab buttons (Lua 5.0 compatible) ===
-  local buttonWidth = 90
-  local spacing     = 10
-  local count       = table.getn(tabs)
-  local totalWidth  = buttonWidth * count + spacing * (count - 1)
-
+  -- Center tabs horizontally (Lua 5.0 compatible)
+  local buttonWidth, spacing = 90, 10
+  local count = table.getn(tabs)
+  local totalWidth = buttonWidth * count + spacing * (count - 1)
   local frameWidth = f.GetWidth and f:GetWidth() or 500
-  local startX     = (frameWidth - totalWidth) / 2
+  local startX = (frameWidth - totalWidth) / 2
 
   local prev
   for i=1, count do
     local t = tabs[i]
     local b = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
-    b:SetWidth(buttonWidth)
-    b:SetHeight(22)
-
+    b:SetWidth(buttonWidth); b:SetHeight(22)
     if i == 1 then
       b:SetPoint("TOPLEFT", f, "TOPLEFT", startX, -44)
     else
       b:SetPoint("LEFT", prev, "RIGHT", spacing, 0)
     end
-
     b:SetText(t.text)
     b:SetScript("OnClick", function() BCG.ShowPage(t.key) end)
     BCG.ui.buttons[t.key] = b
@@ -122,8 +132,7 @@ local function BCG_RebuildTabs(sectionKey)
   end
 end
 
-
--- === Page Switch Logic ===
+-- ===== Page Switching =====
 local function BCG_ShowPage(key)
   local ui = BCG.ui
   if not ui.frame then return end
@@ -139,7 +148,7 @@ local function BCG_ShowPage(key)
   ui.scroll:SetScrollChild(content)
   ui.currentKey = key
 
-  -- === Scrollbar visibility handling ===
+  -- Scrollbar handling
   local s = ui.scroll
   if s then
     local name = s.GetName and s:GetName() or nil
@@ -148,25 +157,25 @@ local function BCG_ShowPage(key)
     local dn   = name and _G[name.."ScrollBarScrollDownButton"] or nil
 
     if key == "hub" then
-      -- Hub: Hide scrollbar, disable scrolling, adjust right edge
+      -- Hide scrollbar on Hub page
       if sb then sb:Hide(); if sb.SetAlpha then sb:SetAlpha(0) end end
       if up then up:Hide(); if up.SetAlpha then up:SetAlpha(0) end end
       if dn then dn:Hide(); if dn.SetAlpha then dn:SetAlpha(0) end end
       if s.ClearAllPoints then
         s:ClearAllPoints()
-        s:SetPoint("TOPLEFT", ui.frame, "TOPLEFT", 16, -72)
+        s:SetPoint("TOPLEFT",     ui.frame, "TOPLEFT",     16, -72)
         s:SetPoint("BOTTOMRIGHT", ui.frame, "BOTTOMRIGHT", -20, 20)
       end
       if s.EnableMouseWheel then s:EnableMouseWheel(false) end
       if s.SetVerticalScroll then s:SetVerticalScroll(0) end
     else
-      -- Other pages: enable scrollbar and normal layout
+      -- Enable scrollbar on profession pages
       if sb then if sb.SetAlpha then sb:SetAlpha(1) end; if sb.Show then sb:Show() end end
       if up then if up.SetAlpha then up:SetAlpha(1) end; if up.Show then up:Show() end end
       if dn then if dn.SetAlpha then dn:SetAlpha(1) end; if dn.Show then dn:Show() end end
       if s.ClearAllPoints then
         s:ClearAllPoints()
-        s:SetPoint("TOPLEFT", ui.frame, "TOPLEFT", 16, -72)
+        s:SetPoint("TOPLEFT",     ui.frame, "TOPLEFT",     16, -72)
         s:SetPoint("BOTTOMRIGHT", ui.frame, "BOTTOMRIGHT", -36, 20)
       end
       if s.EnableMouseWheel then s:EnableMouseWheel(true) end
@@ -175,8 +184,7 @@ local function BCG_ShowPage(key)
 end
 BCG.ShowPage = BCG_ShowPage
 
-
--- === Main Frame Initialization ===
+-- ===== Main Frame Initialization =====
 local function BCG_CreateMainFrame()
   if BCG.ui.frame then return BCG.ui.frame end
 
@@ -213,7 +221,7 @@ local function BCG_CreateMainFrame()
   end
 
   local scroll = CreateFrame("ScrollFrame", "BashyoCraftingGuideScroll", f, "UIPanelScrollFrameTemplate")
-  scroll:SetPoint("TOPLEFT",  f, "TOPLEFT",  16, -72)
+  scroll:SetPoint("TOPLEFT",     f, "TOPLEFT",     16, -72)
   scroll:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -36, 20)
 
   BCG.ui.frame  = f
@@ -221,12 +229,10 @@ local function BCG_CreateMainFrame()
   return f
 end
 
-
--- === Slash Command Integration ===
+-- ===== Slash Command =====
 function BashyoCraftingGuide_Show()
   local f = BCG_CreateMainFrame()
   f:Show()
-  -- Default page: hub (main professions menu)
   if not BCG.ui.currentKey then BCG_ShowPage("hub") else BCG_ShowPage(BCG.ui.currentKey) end
 end
 
@@ -237,18 +243,14 @@ SlashCmdList["BASHYOCRAFTINGGUIDE"] = function()
   BashyoCraftingGuide_Show()
 end
 
-
--- === Addon Loaded Event ===
+-- ===== Addon Loaded =====
 local ev = CreateFrame("Frame")
 ev:RegisterEvent("PLAYER_LOGIN")
 ev:SetScript("OnEvent", function()
   msg("loaded. Use |cffffff00/bcg|r to open.")
 end)
 
-
--- === Bank Cache System ===
--- Updates whenever the bank is opened or slots change.
--- This allows shopping lists to use cached data even when the bank is closed.
+-- ===== Bank Cache System (now supports ALL registered professions) =====
 local bankEv = CreateFrame("Frame")
 bankEv:RegisterEvent("BANKFRAME_OPENED")
 bankEv:RegisterEvent("PLAYERBANKSLOTS_CHANGED")
@@ -258,13 +260,28 @@ bankEv:RegisterEvent("PLAYER_LOGIN")
 bankEv:SetScript("OnEvent", function(_, evt)
   BashyoCraftingGuide_SV = BashyoCraftingGuide_SV or {}
   BashyoCraftingGuide_SV.bankCache = BashyoCraftingGuide_SV.bankCache or {}
+
   if evt == "BANKFRAME_OPENED" or evt == "PLAYERBANKSLOTS_CHANGED" then
-    if BashyoCraftingGuide and BashyoCraftingGuide.Data and BashyoCraftingGuide.Data.Leatherworking then
-      local D = BashyoCraftingGuide.Data.Leatherworking
-      for _, id in pairs(D.MAT_ITEM_IDS or {}) do
-        local _bags, _bank = D.SplitCounts( (function()
-          for n, v in pairs(D.MAT_ITEM_IDS) do if v == id then return n end end
-        end)() )
+    -- Try to update all registered professions
+    if BashyoCraftingGuide and BashyoCraftingGuide.Data then
+      local Data = BashyoCraftingGuide.Data
+
+      -- New architecture: multiple registered professions
+      if type(Data.Get) == "function" and type(Data._byKey) == "table" then
+        for _, D in pairs(Data._byKey) do
+          if D and D.MAT_ITEM_IDS and D.SplitCounts then
+            for matName, _ in pairs(D.MAT_ITEM_IDS) do
+              local _bags, _bank = D.SplitCounts(matName)
+            end
+          end
+        end
+
+      -- Legacy fallback: Leatherworking only
+      elseif Data.Leatherworking and Data.Leatherworking.MAT_ITEM_IDS and Data.Leatherworking.SplitCounts then
+        local D = Data.Leatherworking
+        for matName, _ in pairs(D.MAT_ITEM_IDS) do
+          local _bags, _bank = D.SplitCounts(matName)
+        end
       end
     end
   end

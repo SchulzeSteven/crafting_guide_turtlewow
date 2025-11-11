@@ -5,7 +5,17 @@
 ## Notes: Crafting guide & shopping lists with automatic material calculation
 ## SavedVariables: BashyoCraftingGuideDB, BashyoCraftingGuide_SV
 
+## Shared core
 BashyoCraftingGuide.lua
-BCG_Data_Leatherworking.lua
+BCG_Data.lua
+BCG_Page_Common.lua
+
+
+## Pages
 BCG_Page_Hub.lua
 BCG_Page_Leatherworking.lua
+BCG_Page_Alchemy.lua
+BCG_Page_Blacksmithing.lua
+BCG_Page_Enchanting.lua
+BCG_Page_Engineering.lua
+BCG_Page_Tailoring.lua
