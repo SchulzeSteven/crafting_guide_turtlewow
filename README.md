@@ -1,7 +1,8 @@
 # 🧩 BashyoCraftingGuide
 
 
-<img width="880" height="846" alt="Screenshot 2025-11-11 163803" src="https://github.com/user-attachments/assets/27394613-200b-4153-a618-98b672d80b37" />
+
+<img width="878" height="842" alt="Screenshot 2025-11-11 163803" src="https://github.com/user-attachments/assets/d60a7e8e-5d3b-4959-b832-5f078dec0305" />
 
 > *BashyoCraftingGuide helps you manage and level your professions more efficiently in WoW Classic and Turtle WoW.*
 > 
