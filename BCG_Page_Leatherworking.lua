@@ -1,12 +1,12 @@
 -- BCG_Page_Leatherworking.lua
 local BCG = BashyoCraftingGuide
 
--- kurzhelper für Daten (kann nil sein, wenn Modul fehlt)
+-- Short helper to access the data module (may be nil if the module is missing)
 local function LW_DATA()
   return (BashyoCraftingGuide and BashyoCraftingGuide.Data and BashyoCraftingGuide.Data.Leatherworking) or nil
 end
 
--- ===== Tooltip-Helper (einmalig) =====
+-- ===== Tooltip helper (singleton) =====
 local function GetBCGTooltip()
   if BashyoCraftingGuide and BashyoCraftingGuide.ui then
     if not BashyoCraftingGuide.ui.tip then
@@ -29,7 +29,7 @@ local function HideTooltip()
 end
 
 -- =====================================
--- TRAINER-SEITE
+-- TRAINER PAGE
 -- =====================================
 local function AddHeader(parent, anchor, text, color)
   local fs = parent:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
@@ -116,7 +116,7 @@ local function BuildTrainer(parent)
 end
 
 -- =====================================
--- SHOPPING-SEITE
+-- SHOPPING PAGE
 -- =====================================
 local function GetSkillLevelByAnyName(names)
   local n = GetNumSkillLines()
@@ -134,6 +134,7 @@ end
 local function nextMilestone(s) local t={75,150,225,300} for i=1,4 do if s<t[i] then return t[i] end end return 300 end
 local function ceil_safe(x) return math.ceil((x or 0) - 1e-9) end
 
+-- Slice a total linearly over a level window [fromL,toL) using the overlap with [cur,tgt)
 local function slice_linear(cur,tgt,fromL,toL,total)
   if (total or 0)<=0 then return 0 end
   local start=math.max(cur or 0, fromL); local stop=math.min(tgt or 0, toL)
@@ -141,6 +142,7 @@ local function slice_linear(cur,tgt,fromL,toL,total)
   local share=(stop-start)/(toL-fromL); return ceil_safe(total*share)
 end
 
+-- Like slice_linear, but respects craft unit sizes if total is a multiple of unit
 local function slice_craft(cur,tgt,fromL,toL,total,unit)
   if (total or 0)<=0 or not unit or unit<=0 then return 0 end
   local start=math.max(cur or 0, fromL); local stop=math.min(tgt or 0, toL)
@@ -153,6 +155,7 @@ local function slice_craft(cur,tgt,fromL,toL,total,unit)
   return math.ceil(crafts_total*share-1e-9)*unit
 end
 
+-- Compute needed mats for current -> target using the guide steps
 local function estimateByGuide(cur,tgt)
   if type(cur)~="number" or type(tgt)~="number" or cur>=tgt then return {} end
   local D = LW_DATA()
@@ -180,9 +183,9 @@ local function calcListTo(target)
   return string.format("Shopping list for %s %d -> %d (Guide):", LW.label, s, target), mats, s, target
 end
 
--- eine Zeile im Material-Block
+-- One material row in the shopping area
 local LEFT_PADDING, ROW_H = 16, 22
-local function CreateMatRow(parent, index, mat, count, delta)   -- <— delta dazu
+local function CreateMatRow(parent, index, mat, count, delta)
   local row = CreateFrame("Frame", nil, parent)
   row:SetWidth(360); row:SetHeight(ROW_H)
   if index==1 then
@@ -202,12 +205,13 @@ local function CreateMatRow(parent, index, mat, count, delta)   -- <— delta da
   local fs = row:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
   fs:SetPoint("LEFT", tex, "RIGHT", 6, 0)
 
-  -- Text: benötigte Menge + (abgezogen aus Inventar)
+  -- Text: required amount + (subtracted from inventory/bank)
   local need  = tonumber(count or 0) or 0
   local took  = tonumber(delta or 0) or 0
   local tail  = (took > 0) and (" |cff88ff88(-"..took..")|r") or ""
   fs:SetText(mat.."  x"..need..tail)
 
+  -- Source badge
   local badge = row:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
   badge:SetPoint("RIGHT", row, "RIGHT", 0, 0)
   if D and D.IsVendor and D.IsVendor(mat) then
@@ -218,6 +222,7 @@ local function CreateMatRow(parent, index, mat, count, delta)   -- <— delta da
     badge:SetText("|cff00ff00[AH/Farm]|r")
   end
 
+  -- Add hover zones (icon + text) with detailed tooltip
   local function attachHover(target)
     local hot = CreateFrame("Frame", nil, row)
     hot:SetFrameLevel(row:GetFrameLevel() + 1)
@@ -238,6 +243,7 @@ local function CreateMatRow(parent, index, mat, count, delta)   -- <— delta da
       tip:SetParent(parentFrame)
       tip:SetClampedToScreen(false)
 
+      -- Position tooltip within the addon frame
       local x = (hot:GetRight() or 0) - (parentFrame:GetLeft() or 0) + 10
       local y = (parentFrame:GetTop() or 0) - (hot:GetTop() or 0) + 8
       local maxX = (parentFrame:GetWidth() or 640) - 260
@@ -274,7 +280,7 @@ local function CreateMatRow(parent, index, mat, count, delta)   -- <— delta da
   return row
 end
 
--- Rezept-Tooltip
+-- Recipe tooltip near the recipes label area
 local function ShowRecipeTooltip(owner, recName)
   local frame  = BashyoCraftingGuide and BashyoCraftingGuide.ui and BashyoCraftingGuide.ui.frame
   local anchor = BashyoCraftingGuide and BashyoCraftingGuide.ui and BashyoCraftingGuide.ui.recipesLabel
@@ -312,15 +318,15 @@ local function CreateRecipeRow(parent, anchor, st)
     row:SetPoint("TOPLEFT", parent, "TOPLEFT", LEFT_PADDING, -(parent._recipes_y0 or 0))
   end
 
-  -- aktueller Skill
+  -- Current skill
   local skill = GetSkillLevelByAnyName({"Leatherworking","Lederverarbeitung"}) or 0
 
-  -- Rot, wenn der Abschnitt abgeschlossen ist
+  -- Red if this step is already fully reached
   local isReached = (skill >= (st.to or 0))
-  local nameColor = isReached and "|cffff5555" or "|cffffffff" -- rot oder weiß
-  local rangeGray = isReached and "|cffffaaaa" or "|cffaaaaaa" -- heller grau-ton
+  local nameColor = isReached and "|cffff5555" or "|cffffffff" -- red or white
+  local rangeGray = isReached and "|cffffaaaa" or "|cffaaaaaa" -- lighter gray
 
-  -- Menge dynamisch reduzieren (linear über den Abschnitt)
+  -- Dynamically reduce counts as the player progresses through this step
   local shownCount = st.count or 0
   if skill > (st.from or 0) and skill < (st.to or 0) then
     local totalRange = (st.to - st.from)
@@ -328,16 +334,16 @@ local function CreateRecipeRow(parent, anchor, st)
     local ratio      = 1 - (progress / totalRange)
     shownCount = math.max(1, math.ceil(shownCount * ratio))
   elseif skill >= (st.to or 0) then
-    shownCount = 0    -- Abschnitt komplett -> nichts mehr craften
+    shownCount = 0 -- fully completed -> no more crafts
   end
 
-  -- Levelbereich
+  -- Level range
   local lvl = row:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
   lvl:SetJustifyH("LEFT"); lvl:SetWidth(80)
   lvl:SetPoint("LEFT", row, "LEFT", LEFT_PADDING, 0)
   lvl:SetText(string.format("%s%d – %d|r", rangeGray, st.from or 0, st.to or 0))
 
-  -- Menge
+  -- Count
   local cnt = row:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
   cnt:SetJustifyH("RIGHT"); cnt:SetWidth(28)
   cnt:SetPoint("LEFT", lvl, "RIGHT", -10, 0)
@@ -354,7 +360,7 @@ local function CreateRecipeRow(parent, anchor, st)
   txt:SetPoint("LEFT", icon, "RIGHT", 6, 0)
   txt:SetText(string.format("%s%s|r", nameColor, st.name or "?"))
 
-  -- (Optionaler Tooltip, falls du ihn willst)
+  -- Optional hover handlers for the recipe
   local function addHover(target)
     local h = CreateFrame("Frame", nil, row)
     h:SetAllPoints(target); h:EnableMouse(true)
@@ -367,7 +373,7 @@ local function CreateRecipeRow(parent, anchor, st)
 end
 
 
--- Inventar von Bedarf abziehen
+-- Subtract inventory/bank from required mats
 local function ApplyInventoryToMats(mats)
   local D = LW_DATA()
   if type(mats) ~= "table" then return false end
@@ -400,7 +406,7 @@ local function BuildShopping(parent)
   hint:SetPoint("TOPLEFT", content, "TOPLEFT", 8, -4)
   hint:SetText("Guide shopping lists. Choose a milestone:")
 
-  -- Manual Mode Toggle
+  -- Manual mode toggle to preview any milestone
   local testMode = false
   local testChk = CreateFrame("CheckButton", nil, content, "UICheckButtonTemplate")
   testChk:SetPoint("TOPLEFT", content, "TOPLEFT", 300, -20)
@@ -418,7 +424,7 @@ local function BuildShopping(parent)
     render(currentTarget)
   end)
 
-
+  -- Small helper to create target buttons
   local function makeBtn(caption, x, onClick)
     local b = CreateFrame("Button", nil, content, "UIPanelButtonTemplate")
     b:SetWidth(70); b:SetHeight(22)
@@ -428,10 +434,12 @@ local function BuildShopping(parent)
     return b
   end
 
+  -- Area for materials (shopping list)
   local matsArea = CreateFrame("Frame", nil, content)
   matsArea:SetPoint("TOPLEFT", content, "TOPLEFT", 0, -58)
   matsArea:SetWidth(620); matsArea:SetHeight(100)
 
+  -- Horizontal rule above the recipes section
   local rule = content:CreateTexture(nil, "ARTWORK")
   rule:SetTexture("Interface\\Buttons\\WHITE8x8"); rule:SetVertexColor(1,1,1,0.15)
 
@@ -441,17 +449,21 @@ local function BuildShopping(parent)
 
   local recipeArea = CreateFrame("Frame", nil, content)
 
+  -- Helper to compute the bracket start for "Show All Ranks" mode
   local function bracketStartFor(target)
     if target <= 75 then return 1
     elseif target <= 150 then return 75
     elseif target <= 225 then return 150
     else return 225 end
   end
+
+  -- Compute a list directly for a given range (used by "Show All Ranks")
   local function calcListForRange(fromL, toL)
     local mats = estimateByGuide(fromL, toL)
     return string.format("Shopping list %d -> %d (Guide):", fromL, toL), mats, fromL, toL
   end
 
+  -- Main render function for a target milestone
   function render(target)
     currentTarget = target
     HideTooltip()
@@ -477,6 +489,7 @@ local function BuildShopping(parent)
       mats = {}
     end
 
+    -- Sort keys with the data module's comparator (if provided)
     local keys, kN = {}, 0
     for k,_ in pairs(mats) do if k ~= "_invDelta" then kN = kN + 1; keys[kN] = k end end
 
@@ -488,21 +501,21 @@ local function BuildShopping(parent)
       keys[j+1] = v
     end
 
-    -- innerhalb von function render(target)
-local count = 0
-for i=1, kN do
-  local m, n = keys[i], mats[keys[i]]
-  if n and n > 0 then
-    count = count + 1
-    local delta = mats._invDelta and mats._invDelta[m] or 0   -- <—
-    CreateMatRow(matsArea, count, m, n, delta)                -- <—
-  end
-end
-
+    -- Create rows
+    local count = 0
+    for i=1, kN do
+      local m, n = keys[i], mats[keys[i]]
+      if n and n > 0 then
+        count = count + 1
+        local delta = mats._invDelta and mats._invDelta[m] or 0
+        CreateMatRow(matsArea, count, m, n, delta)
+      end
+    end
 
     local inner_h = math.max(20, count * (ROW_H + 4))
     matsArea:SetWidth(620); matsArea:SetHeight(inner_h)
 
+    -- If no valid range (shouldn't happen), collapse the recipes area
     if not (fromL and toL) then
       if rule and rule.Hide then rule:Hide() end
       if recipesLabel and recipesLabel.Hide then recipesLabel:Hide() end
@@ -514,17 +527,20 @@ end
       return
     end
 
+    -- Separator line position above recipes
     rule:Show()
     rule:ClearAllPoints()
     rule:SetPoint("TOPLEFT",  content, "TOPLEFT",  LEFT_PADDING, -(inner_h + 104))
     rule:SetPoint("TOPRIGHT", content, "TOPRIGHT", -20,          -(inner_h + 104))
     rule:SetHeight(1)
 
+    -- Recipes header label
     recipesLabel:Show()
     recipesLabel:ClearAllPoints()
     recipesLabel:SetPoint("BOTTOMLEFT", rule, "TOPLEFT", 18, 2)
     recipesLabel:SetJustifyH("LEFT")
 
+    -- Clear and (re)build the recipe list
     for _, c in ipairs({recipeArea:GetChildren()}) do if c.Hide then c:Hide() end end
     HideTooltip()
     recipeArea:Show()
@@ -545,18 +561,19 @@ end
     local recipes_h = (rcount > 0) and (rcount * 18 + (rcount - 1) * 6) or 0
     recipeArea:SetWidth(620); recipeArea:SetHeight(recipes_h)
 
+    -- Final content size and scroll area update
     content:SetHeight(inner_h + 24 + 22 + recipes_h + 20)
     local ui = BashyoCraftingGuide.ui
     if ui and ui.scroll and ui.scroll.UpdateScrollChildRect then ui.scroll:UpdateScrollChildRect() end
   end
 
-  -- Buttons
+  -- Target buttons
   makeBtn("1-75",    0,   function() render(75)   end)
   makeBtn("75-150",  74,  function() render(150)  end)
   makeBtn("150-225", 148, function() render(225)  end)
   makeBtn("225-300", 222, function() render(300)  end)
 
-  -- Live-Updates
+  -- Live bag/bank updates
   local bagWatcher = CreateFrame("Frame", nil, content)
   bagWatcher:RegisterEvent("BAG_UPDATE")
   bagWatcher:RegisterEvent("PLAYERBANKSLOTS_CHANGED")
@@ -564,7 +581,7 @@ end
   bagWatcher:RegisterEvent("BANKFRAME_CLOSED")
   bagWatcher:SetScript("OnEvent", function() if currentTarget then render(currentTarget) end end)
 
-  -- Initial
+  -- Initial render based on current skill milestone
   local s = GetSkillLevelByAnyName({"Leatherworking","Lederverarbeitung"}) or 0
   local init = (s and nextMilestone(s)) or 75
   render(init)
@@ -572,14 +589,13 @@ end
   return content
 end
 
--- in BuildShopping(...) NACH der Definition von render(...)
+-- Re-render on skill changes (Classic-safe)
 local skillWatcher = CreateFrame("Frame", nil, content)
 skillWatcher:RegisterEvent("SKILL_LINES_CHANGED")
-skillWatcher:RegisterEvent("CHAT_MSG_SKILL") -- Classic-Fallback
+skillWatcher:RegisterEvent("CHAT_MSG_SKILL") -- Classic fallback
 skillWatcher:SetScript("OnEvent", function()
   if currentTarget then render(currentTarget) end
 end)
-
 
 -- ================= Register pages =================
 BCG:RegisterPage("lw_trainer",  "Trainer",  BuildTrainer)

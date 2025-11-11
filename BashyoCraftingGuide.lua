@@ -16,12 +16,13 @@ function BCG:RegisterPage(key, label, buildFunc)
   self.pages[key] = {label=label, build=buildFunc}
 end
 
--- Build tabs depending on section (e.g. all keys starting with "lw_")
+-- Dynamically builds the top tab bar depending on the current section
+-- (e.g., for keys starting with "lw_" -> Leatherworking)
 local function BCG_RebuildTabs(sectionKey)
   local f = BCG.ui and BCG.ui.frame
   if not f then return end
 
-  -- alte Buttons wegräumen
+  -- Remove previously created tab buttons
   for _, b in pairs(BCG.ui.buttons or {}) do
     if b.Hide then b:Hide() end
   end
@@ -37,98 +38,92 @@ local function BCG_RebuildTabs(sectionKey)
     }
   end
 
-  -- ===== Sektionen-Label über den Tabs =====
-if not BCG.ui.sectionLabel then
-  local label = f:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
-label:SetPoint("TOPLEFT", f, "TOPLEFT", 36, -18)
-label:SetTextColor(1, 0.82, 0)
-
-  label:Hide()
-  BCG.ui.sectionLabel = label
-end
-
--- Unterstrich über volle Breite
-if not BCG.ui.sectionUnderline then
-  local line = f:CreateTexture(nil, "ARTWORK")
-  line:SetTexture("Interface\\Buttons\\WHITE8x8")   -- universell vorhandene Textur
-  line:SetVertexColor(1, 0.82, 0, 1)                -- goldener Farbton
-  line:SetHeight(1)
-  -- über die gesamte Frame-Breite spannen
-  line:SetPoint("TOPLEFT", f, "TOPLEFT", 16, -34)
-  line:SetPoint("TOPRIGHT", f, "TOPRIGHT", -16, -34)
-  line:Hide()
-  BCG.ui.sectionUnderline = line
-end
-
-if isLeatherworking then
-  BCG.ui.sectionLabel:SetText("Leatherworking")
-  BCG.ui.sectionLabel:Show()
-  BCG.ui.sectionUnderline:Show()
-else
-  BCG.ui.sectionLabel:Hide()
-  if BCG.ui.sectionUnderline then
-    BCG.ui.sectionUnderline:Hide()
+  -- ===== Section Label above the Tabs =====
+  if not BCG.ui.sectionLabel then
+    local label = f:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+    label:SetPoint("TOPLEFT", f, "TOPLEFT", 36, -18)
+    label:SetTextColor(1, 0.82, 0)
+    label:Hide()
+    BCG.ui.sectionLabel = label
   end
-end
 
--- ===== Zur Hauptseite / Professions zurück =====
--- kleiner Button oben links, nur sichtbar in der LW-Sektion
-if not BCG.ui.backToHub then
-  local b = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
-  b:SetWidth(80); b:SetHeight(22)
-  b:SetText("Professions")
-  b:SetScript("OnClick", function()
-    -- Tooltip sicher verstecken, falls offen
-    if BCG.ui and BCG.ui.tip and BCG.ui.tip.Hide then BCG.ui.tip:Hide() end
-    -- Zur Hub-Seite wechseln
-    BCG.ShowPage("hub")
-  end)
-  BCG.ui.backToHub = b
-end
+  -- Underline below the section title
+  if not BCG.ui.sectionUnderline then
+    local line = f:CreateTexture(nil, "ARTWORK")
+    line:SetTexture("Interface\\Buttons\\WHITE8x8") -- default WoW texture
+    line:SetVertexColor(1, 0.82, 0, 1) -- golden tone
+    line:SetHeight(1)
+    line:SetPoint("TOPLEFT", f, "TOPLEFT", 16, -34)
+    line:SetPoint("TOPRIGHT", f, "TOPRIGHT", -16, -34)
+    line:Hide()
+    BCG.ui.sectionUnderline = line
+  end
 
-if isLeatherworking then
-  BCG.ui.backToHub:Show()
-  BCG.ui.backToHub:ClearAllPoints()
-  BCG.ui.backToHub:SetPoint("TOPLEFT", f, "TOPLEFT", 22, -44)
-else
-  if BCG.ui.backToHub then BCG.ui.backToHub:Hide() end
-end
--- ===== Ende Zur Hauptseite =====
-
--- ===== Ende Sektionen-Label =====
-
-if not tabs then return end
-
--- === Buttons mittig platzieren (Lua 5.0-kompatibel) ===
-local buttonWidth = 90
-local spacing     = 10
-local count       = table.getn(tabs)               -- statt #tabs
-local totalWidth  = buttonWidth * count + spacing * (count - 1)
-
-local frameWidth = f.GetWidth and f:GetWidth() or 500
-local startX     = (frameWidth - totalWidth) / 2   -- zentriert
-
-local prev
-for i=1, count do
-  local t = tabs[i]
-  local b = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
-  b:SetWidth(buttonWidth)
-  b:SetHeight(22)
-
-  if i == 1 then
-    b:SetPoint("TOPLEFT", f, "TOPLEFT", startX, -44)
+  if isLeatherworking then
+    BCG.ui.sectionLabel:SetText("Leatherworking")
+    BCG.ui.sectionLabel:Show()
+    BCG.ui.sectionUnderline:Show()
   else
-    b:SetPoint("LEFT", prev, "RIGHT", spacing, 0)
+    BCG.ui.sectionLabel:Hide()
+    if BCG.ui.sectionUnderline then
+      BCG.ui.sectionUnderline:Hide()
+    end
   end
 
-  b:SetText(t.text)
-  b:SetScript("OnClick", function() BCG.ShowPage(t.key) end)
-  BCG.ui.buttons[t.key] = b
-  prev = b
+  -- ===== Back to Hub button (only shown in Leatherworking section) =====
+  if not BCG.ui.backToHub then
+    local b = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
+    b:SetWidth(80); b:SetHeight(22)
+    b:SetText("Professions")
+    b:SetScript("OnClick", function()
+      if BCG.ui and BCG.ui.tip and BCG.ui.tip.Hide then BCG.ui.tip:Hide() end
+      BCG.ShowPage("hub")
+    end)
+    BCG.ui.backToHub = b
+  end
+
+  if isLeatherworking then
+    BCG.ui.backToHub:Show()
+    BCG.ui.backToHub:ClearAllPoints()
+    BCG.ui.backToHub:SetPoint("TOPLEFT", f, "TOPLEFT", 22, -44)
+  else
+    if BCG.ui.backToHub then BCG.ui.backToHub:Hide() end
+  end
+  -- ===== End Back-to-Hub =====
+
+  if not tabs then return end
+
+  -- === Center tab buttons (Lua 5.0 compatible) ===
+  local buttonWidth = 90
+  local spacing     = 10
+  local count       = table.getn(tabs)
+  local totalWidth  = buttonWidth * count + spacing * (count - 1)
+
+  local frameWidth = f.GetWidth and f:GetWidth() or 500
+  local startX     = (frameWidth - totalWidth) / 2
+
+  local prev
+  for i=1, count do
+    local t = tabs[i]
+    local b = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
+    b:SetWidth(buttonWidth)
+    b:SetHeight(22)
+
+    if i == 1 then
+      b:SetPoint("TOPLEFT", f, "TOPLEFT", startX, -44)
+    else
+      b:SetPoint("LEFT", prev, "RIGHT", spacing, 0)
+    end
+
+    b:SetText(t.text)
+    b:SetScript("OnClick", function() BCG.ShowPage(t.key) end)
+    BCG.ui.buttons[t.key] = b
+    prev = b
   end
 end
 
 
+-- === Page Switch Logic ===
 local function BCG_ShowPage(key)
   local ui = BCG.ui
   if not ui.frame then return end
@@ -144,7 +139,7 @@ local function BCG_ShowPage(key)
   ui.scroll:SetScrollChild(content)
   ui.currentKey = key
 
-  -- === Scrollbar nur im Hub ausblenden, sonst einblenden ===
+  -- === Scrollbar visibility handling ===
   local s = ui.scroll
   if s then
     local name = s.GetName and s:GetName() or nil
@@ -153,7 +148,7 @@ local function BCG_ShowPage(key)
     local dn   = name and _G[name.."ScrollBarScrollDownButton"] or nil
 
     if key == "hub" then
-      -- Hub: keine Scrollbar sichtbar + kein Scrollen + rechter Rand ohne Gutter
+      -- Hub: Hide scrollbar, disable scrolling, adjust right edge
       if sb then sb:Hide(); if sb.SetAlpha then sb:SetAlpha(0) end end
       if up then up:Hide(); if up.SetAlpha then up:SetAlpha(0) end end
       if dn then dn:Hide(); if dn.SetAlpha then dn:SetAlpha(0) end end
@@ -165,7 +160,7 @@ local function BCG_ShowPage(key)
       if s.EnableMouseWheel then s:EnableMouseWheel(false) end
       if s.SetVerticalScroll then s:SetVerticalScroll(0) end
     else
-      -- andere Seiten: Scrollbar normal anzeigen + Scrollen erlauben + Standard-Gutter
+      -- Other pages: enable scrollbar and normal layout
       if sb then if sb.SetAlpha then sb:SetAlpha(1) end; if sb.Show then sb:Show() end end
       if up then if up.SetAlpha then up:SetAlpha(1) end; if up.Show then up:Show() end end
       if dn then if dn.SetAlpha then dn:SetAlpha(1) end; if dn.Show then dn:Show() end end
@@ -177,12 +172,11 @@ local function BCG_ShowPage(key)
       if s.EnableMouseWheel then s:EnableMouseWheel(true) end
     end
   end
-  -- === Ende Scrollbar-Handling ===
 end
 BCG.ShowPage = BCG_ShowPage
 
 
-
+-- === Main Frame Initialization ===
 local function BCG_CreateMainFrame()
   if BCG.ui.frame then return BCG.ui.frame end
 
@@ -227,10 +221,12 @@ local function BCG_CreateMainFrame()
   return f
 end
 
+
+-- === Slash Command Integration ===
 function BashyoCraftingGuide_Show()
   local f = BCG_CreateMainFrame()
   f:Show()
-  -- default: hub (main professions page)
+  -- Default page: hub (main professions menu)
   if not BCG.ui.currentKey then BCG_ShowPage("hub") else BCG_ShowPage(BCG.ui.currentKey) end
 end
 
@@ -241,13 +237,18 @@ SlashCmdList["BASHYOCRAFTINGGUIDE"] = function()
   BashyoCraftingGuide_Show()
 end
 
+
+-- === Addon Loaded Event ===
 local ev = CreateFrame("Frame")
 ev:RegisterEvent("PLAYER_LOGIN")
 ev:SetScript("OnEvent", function()
   msg("loaded. Use |cffffff00/bcg|r to open.")
 end)
 
--- Keep the bank cache updated (works for pages that use the data module)
+
+-- === Bank Cache System ===
+-- Updates whenever the bank is opened or slots change.
+-- This allows shopping lists to use cached data even when the bank is closed.
 local bankEv = CreateFrame("Frame")
 bankEv:RegisterEvent("BANKFRAME_OPENED")
 bankEv:RegisterEvent("PLAYERBANKSLOTS_CHANGED")

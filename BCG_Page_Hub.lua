@@ -25,7 +25,7 @@ local function BuildHub(parent)
     "• Fully scrollable, movable interface with tabs and a profession hub accessible via |cff33ff33/bcg|r.\n"
   )
 
-  -- Untertitel zentrieren
+  -- Subtitle centered
   local sub = f:CreateFontString(nil, "ARTWORK", "GameFontNormal")
   sub:SetText("Choose a profession")
   sub:ClearAllPoints()
@@ -33,7 +33,7 @@ local function BuildHub(parent)
   sub:SetWidth(600)
   sub:SetJustifyH("CENTER")
 
-  -- Button-Erstellung
+  -- Helper to create profession buttons at absolute positions
   local function makeProfButton(text, x, y, onClick)
     local b = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
     b:SetWidth(120); b:SetHeight(28)
@@ -42,14 +42,14 @@ local function BuildHub(parent)
     if onClick then
       b:SetScript("OnClick", onClick)
     end
-    return b  
+    return b
   end
 
-  -- === Alphabetisch sortierte Profession-Buttons (3 Reihen, 2 Spalten, mittig) ===
+  -- === Alphabetical profession buttons (3 rows, 2 columns, visually centered) ===
   local LEFT_X  = 80
   local RIGHT_X = 260
 
-  -- Reihe 1
+  -- Row 1
   makeProfButton("Alchemy",       LEFT_X,  -240, function()
     if BCG and BCG.ShowPage then BCG.ShowPage("al_trainer") end
   end)
@@ -58,7 +58,7 @@ local function BuildHub(parent)
     if BCG and BCG.ShowPage then BCG.ShowPage("bs_trainer") end
   end)
 
-  -- Reihe 2
+  -- Row 2
   makeProfButton("Enchanting",    LEFT_X,  -280, function()
     if BCG and BCG.ShowPage then BCG.ShowPage("en_trainer") end
   end)
@@ -67,7 +67,7 @@ local function BuildHub(parent)
     if BCG and BCG.ShowPage then BCG.ShowPage("eng_trainer") end
   end)
 
-  -- Reihe 3
+  -- Row 3
   makeProfButton("Leatherworking",LEFT_X,  -320, function()
     if BCG and BCG.ShowPage then BCG.ShowPage("lw_trainer") end
   end)
@@ -76,21 +76,21 @@ local function BuildHub(parent)
     if BCG and BCG.ShowPage then BCG.ShowPage("ta_trainer") end
   end)
 
-  -- Reihe 4 – Jewelcrafting (grau, inaktiv)
+  -- Row 4 – Jewelcrafting (disabled/greyed out)
   local jewel = makeProfButton("Jewelcrafting", 170, -360)
   jewel:Disable()
+  -- Grey out the button textures (normal/highlight/disabled)
   jewel:GetNormalTexture():SetVertexColor(0.5, 0.5, 0.5)
   jewel:GetHighlightTexture():SetVertexColor(0.5, 0.5, 0.5)
   jewel:GetDisabledTexture():SetVertexColor(0.4, 0.4, 0.4)
 
-  -- Kleiner grauer Text rechts neben dem Button
+  -- Small grey text next to the button
   local label = f:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
   label:SetText("(Coming soon)")
-  label:SetTextColor(0.7, 0.7, 0.7)  -- hellgrau
-  label:SetPoint("LEFT", jewel, "RIGHT", 0, 0) -- 10px rechts vom Button
+  label:SetTextColor(0.7, 0.7, 0.7)  -- light grey
+  label:SetPoint("LEFT", jewel, "RIGHT", 0, 0) -- text placed to the right of the button
 
-
-  -- Optionaler Tooltip
+  -- Optional tooltip for Jewelcrafting
   jewel:SetScript("OnEnter", function(self)
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
     GameTooltip:AddLine("Jewelcrafting", 1, 1, 1)
@@ -98,7 +98,6 @@ local function BuildHub(parent)
     GameTooltip:Show()
   end)
   jewel:SetScript("OnLeave", function() GameTooltip:Hide() end)
-
 
   return f
 end
