@@ -65,7 +65,7 @@ It provides a central hub, automatic material calculations, and convenient acces
 
 1. Download or clone this repository:
    ```bash
-   git clone https://github.com/YOUR_GITHUB_NAME/BashyoCraftingGuide.git
+   git clone https://github.com/SchulzeSteven/crafting_guide_turtlewow.git
    ```
 
 2. Move the folder into your WoW AddOns directory, for example:
