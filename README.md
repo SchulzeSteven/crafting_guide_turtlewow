@@ -44,7 +44,7 @@ It provides a central hub, automatic material calculations, and convenient acces
   ```
 
 - 🚀 **Expandable Framework**  
-  More professions and features are planned for future updates.
+  Jewelcrafting is coming soon
 
 ---
 
@@ -58,6 +58,7 @@ It provides a central hub, automatic material calculations, and convenient acces
 | 🧰 Engineering | `eng_trainer` |
 | 🐍 Leatherworking | `lw_trainer` |
 | 🧵 Tailoring | `ta_trainer` |
+| 💎 Jewelcrafting *(Coming soon)* | — |
 
 ---
 
