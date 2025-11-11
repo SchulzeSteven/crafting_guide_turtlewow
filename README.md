@@ -95,7 +95,7 @@ It provides a central hub, automatic material calculations, and convenient acces
 ### 🧑‍💻 Author
 
 **by Bashyo**  
-> Lightweight, Lua-based, built for Classic and Turtle WoW.
+> Lightweight, Lua-based, built for Turtle WoW.
 
 ---
 
