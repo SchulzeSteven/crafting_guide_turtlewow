@@ -87,6 +87,7 @@ It provides a central hub, automatic material calculations, and convenient acces
 Below is the in-game **Hub View** with all professions and the addon description panel:
 
 BashyoCraftingGuide Ingame Screenshot
+
 <img width="500" height="844" alt="Screenshot 2025-11-11 165833" src="https://github.com/user-attachments/assets/d6a80df3-c532-4967-a0df-02ee2fa6179f" />
 <img width="500" height="841" alt="Screenshot 2025-11-11 165803" src="https://github.com/user-attachments/assets/06a0d3b9-04ab-450d-b102-40e10ce295a6" />
 <img width="500" height="844" alt="Screenshot 2025-11-11 165656" src="https://github.com/user-attachments/assets/47f407a9-119d-453e-a62b-7e8f4d1da776" />
