@@ -143,8 +143,45 @@ local function BCG_ShowPage(key)
   local content = page.build(ui.frame)
   ui.scroll:SetScrollChild(content)
   ui.currentKey = key
+
+  -- === Scrollbar nur im Hub ausblenden, sonst einblenden ===
+  local s = ui.scroll
+  if s then
+    local name = s.GetName and s:GetName() or nil
+    local sb   = (name and _G[name.."ScrollBar"]) or s.ScrollBar
+    local up   = name and _G[name.."ScrollBarScrollUpButton"] or nil
+    local dn   = name and _G[name.."ScrollBarScrollDownButton"] or nil
+
+    if key == "hub" then
+      -- Hub: keine Scrollbar sichtbar + kein Scrollen + rechter Rand ohne Gutter
+      if sb then sb:Hide(); if sb.SetAlpha then sb:SetAlpha(0) end end
+      if up then up:Hide(); if up.SetAlpha then up:SetAlpha(0) end end
+      if dn then dn:Hide(); if dn.SetAlpha then dn:SetAlpha(0) end end
+      if s.ClearAllPoints then
+        s:ClearAllPoints()
+        s:SetPoint("TOPLEFT", ui.frame, "TOPLEFT", 16, -72)
+        s:SetPoint("BOTTOMRIGHT", ui.frame, "BOTTOMRIGHT", -20, 20)
+      end
+      if s.EnableMouseWheel then s:EnableMouseWheel(false) end
+      if s.SetVerticalScroll then s:SetVerticalScroll(0) end
+    else
+      -- andere Seiten: Scrollbar normal anzeigen + Scrollen erlauben + Standard-Gutter
+      if sb then if sb.SetAlpha then sb:SetAlpha(1) end; if sb.Show then sb:Show() end end
+      if up then if up.SetAlpha then up:SetAlpha(1) end; if up.Show then up:Show() end end
+      if dn then if dn.SetAlpha then dn:SetAlpha(1) end; if dn.Show then dn:Show() end end
+      if s.ClearAllPoints then
+        s:ClearAllPoints()
+        s:SetPoint("TOPLEFT", ui.frame, "TOPLEFT", 16, -72)
+        s:SetPoint("BOTTOMRIGHT", ui.frame, "BOTTOMRIGHT", -36, 20)
+      end
+      if s.EnableMouseWheel then s:EnableMouseWheel(true) end
+    end
+  end
+  -- === Ende Scrollbar-Handling ===
 end
 BCG.ShowPage = BCG_ShowPage
+
+
 
 local function BCG_CreateMainFrame()
   if BCG.ui.frame then return BCG.ui.frame end
@@ -207,7 +244,7 @@ end
 local ev = CreateFrame("Frame")
 ev:RegisterEvent("PLAYER_LOGIN")
 ev:SetScript("OnEvent", function()
-  msg("loaded. Use |cffffff00/bashyo|r or |cffffff00/bcg|r to open.")
+  msg("loaded. Use |cffffff00/bcg|r to open.")
 end)
 
 -- Keep the bank cache updated (works for pages that use the data module)
