@@ -12,17 +12,27 @@ end
 local function GetBCGTooltip()
   if BCG and BCG.ui then
     if not BCG.ui.tip then
-      local parent = (BCG.ui.frame or UIParent)
-      local tip = CreateFrame("GameTooltip", "BashyoCraftingGuideTooltip", parent, "GameTooltipTemplate")
-      tip:SetFrameStrata("TOOLTIP")
-      tip:SetClampedToScreen(false)
+      -- Tooltip direkt an UIParent hängen, nicht an dem Addon-Frame
+      local tip = CreateFrame("GameTooltip", "BashyoCraftingGuideTooltip", UIParent, "GameTooltipTemplate")
+      tip:SetFrameStrata("TOOLTIP")   -- immer über normalen UI-Frames
+      tip:SetFrameLevel(100)          -- sehr hoch im TOOLTIP-Layer
+      tip:SetClampedToScreen(true)
       tip:Hide()
       BCG.ui.tip = tip
+    else
+      -- Falls ein anderer Code ihn verändert hat: jedes Mal zurücksetzen
+      local tip = BCG.ui.tip
+      tip:SetParent(UIParent)
+      tip:SetFrameStrata("TOOLTIP")
+      tip:SetFrameLevel(100)
+      tip:SetClampedToScreen(true)
     end
     return BCG.ui.tip
   end
   return GameTooltip
 end
+
+
 
 local function HideTooltip()
   local tip = GetBCGTooltip()
@@ -94,15 +104,6 @@ local DEFAULT_TRAINERS = {
         },
     },
 
-    -- (Optional) Neutral block for consistency with Alchemy; leave empty if none exist
-    {
-        header = "Neutral Apprentice & Journeyman Leatherworking Trainers (1–75 and 75–150)",
-        color  = { r=0.8, g=0.8, b=0.8 },
-        list   = {
-        -- add neutral trainers here if you have any
-        },
-    },
-
     {
         header = "Expert Leatherworking Trainers (150–225)",
         color  = { r=1.0, g=0.82, b=0.0 },
@@ -120,6 +121,44 @@ local DEFAULT_TRAINERS = {
         {"Hahrana Ironhide",  "Camp Mojache, Feralas",       "74, 43", { r=1.0, g=0.55, b=0.55 }}, -- Horde
         },
     },
+
+    {
+        header = "Dragonscale Leatherworking",
+        color  = { r=1.0, g=0.82, b=0.0 },
+        list = {
+            -- Alliance
+            {"Dragonscale Leatherworking - Peter Galen", "Ruins of Eldarath, Azshara", "37, 65", { r=0.58, g=0.8, b=1.0 }},
+
+            -- Horde
+            {"Dragonscale Leatherworking - Thorkaf Dragoneye", "Badlands", "63, 58", { r=1.0, g=0.55, b=0.55 }},
+        },
+    },
+
+    {
+        header = "Elemental Leatherworking",
+        color  = { r=1.0, g=0.82, b=0.0 },
+        list = {
+            -- Alliance
+            {"Elemental Leatherworking - Peter Galen", "Searing Gorge", "63, 76", { r=0.58, g=0.8, b=1.0 }},
+
+            -- Horde
+            {"Elemental Leatherworking - Brumn Winterhoof", "Arathi Highlands", "3, 76", { r=1.0, g=0.55, b=0.55 }},
+        },
+    },
+
+    {
+        header = "Tribal Leatherworking – Quest Givers",
+        color  = { r=1.0, g=0.82, b=0.0 },
+        list = {
+            -- Alliance
+            {"Caryssia Moonhunter", "Lower Wilds, Feralas", "7, 19", { r=0.58, g=0.8, b=1.0 }},
+
+            -- Horde
+            {"Se'Jib", "Stranglethorn Vale", "37, 34", { r=1.0, g=0.55, b=0.55 }},
+        },
+    },
+
+
     },
 
     alchemy = {
@@ -295,7 +334,7 @@ local function CreateMatRow(parent, D, index, mat, count, delta, rightNote, meta
     badge:SetText("|cff00ff00[AH/Farm]|r")
   end
 
-  -- Tooltip with inventory counts + optional meta info for intermediates
+    -- Tooltip mit Inventarinfo, aber ohne Frame-Clamping
   local function attachHover(target)
     local hot = CreateFrame("Frame", nil, row)
     hot:SetFrameLevel(row:GetFrameLevel() + 1)
@@ -309,28 +348,18 @@ local function CreateMatRow(parent, D, index, mat, count, delta, rightNote, meta
       local bags, bank = 0, 0
       if D and D.SplitCounts then bags, bank = D.SplitCounts(mat) end
 
-      local parentFrame = (BCG and BCG.ui and BCG.ui.frame) or UIParent
       local tip = GetBCGTooltip(); if not tip then return end
-      tip:SetOwner(hot, "ANCHOR_NONE")
-      tip:ClearAllPoints()
-      tip:SetParent(parentFrame)
-      tip:SetClampedToScreen(false)
 
-      local x = (hot:GetRight() or 0) - (parentFrame:GetLeft() or 0) + 10
-      local y = (parentFrame:GetTop() or 0) - (hot:GetTop() or 0) + 8
-      local maxX = (parentFrame:GetWidth() or 640) - 260
-      local maxY = (parentFrame:GetHeight() or 480) - 120
-      if x < 8 then x = 8 elseif x > maxX then x = maxX end
-      if y < 8 then y = 8 elseif y > maxY then y = maxY end
-      tip:SetPoint("TOPLEFT", parentFrame, "TOPLEFT", x, -y)
-
+      -- WICHTIG: kein eigenes SetPoint mehr, einfach normal andocken
+      tip:SetOwner(hot, "ANCHOR_RIGHT")
+      tip:SetClampedToScreen(true)   -- optional, kann auch false sein
       tip:ClearLines()
+
       tip:AddLine(mat, 1, 0.82, 0, true)
       tip:AddLine(string.format("You have: |cff88ff88%d|r", have))
       tip:AddLine(string.format("Need: |cffffff00%d|r", needQty))
       tip:AddLine(string.format("Remaining: |cffff5555%d|r", remaining))
 
-      -- Extra context for intermediates so new players understand "partial"
       if meta then
         if meta.consumer then
           tip:AddLine("|cffaaaaaaUsed to craft:|r ".."|cffffd100"..meta.consumer.."|r")
@@ -354,16 +383,266 @@ local function CreateMatRow(parent, D, index, mat, count, delta, rightNote, meta
         locText = string.format("Location: Bank (%d)", bank)
       end
       tip:AddLine(locText, 0.7, 0.7, 0.7)
+
       tip:Show()
     end)
     hot:SetScript("OnLeave", HideTooltip)
   end
+
 
   attachHover(tex)
   attachHover(fs)
   return row
 end
 
+
+-- =====================================
+-- RECIPES PAGE (3 columns for Alchemy/trainable only, with extra top offset)
+-- =====================================
+local function BuildRecipesGeneric(parent, PROF)
+  local content = CreateFrame("Frame", nil, parent)
+  content:SetWidth(680); content:SetHeight(460)
+
+  -- sichere Datenquelle
+  local D = DATA(PROF.key) or {}
+  D.RECIPE_SOURCES = D.RECIPE_SOURCES or {}
+
+  -- Tabs definieren
+  local tabs = {
+    {key="trainable",    label="Trainable Recipes"},
+    {key="vendorquests", label="Vendor/Quests"},
+    {key="drops",        label="Recipe Drops"},
+  }
+
+  -- Nur Alchemy bekommt einen extra Tab
+  if PROF.key == "alchemy" then
+      table.insert(tabs, {
+          key = "special",
+          label = PROF.specialRecipesLabel or "Flask Recipes"
+      })
+  end
+
+
+  local function getSourceList(key)
+    local S = D.RECIPE_SOURCES
+    return (S and S[key]) or {}
+  end
+
+  -- ersten existierenden Tab wählen
+  local current = nil
+
+  -- Tab Buttons
+  local function makeTabButton(caption, x, onClick)
+    local b = CreateFrame("Button", nil, content, "UIPanelButtonTemplate")
+    b:SetWidth(90); b:SetHeight(22)
+    b:SetPoint("TOPLEFT", content, "TOPLEFT", 8 + x, -8)
+    b:SetText(caption)
+    b:SetScript("OnClick", onClick)
+    return b
+  end
+
+  -- weiter nach unten rücken
+  local TOP_OFFSET = 72  -- vorher ~40; jetzt deutlich tiefer
+
+  local listFrame = CreateFrame("Frame", nil, content)
+  listFrame:SetPoint("TOPLEFT", content, "TOPLEFT", 10, -TOP_OFFSET)
+  listFrame:SetPoint("BOTTOMRIGHT", content, "BOTTOMRIGHT", -12, -10)
+
+  local rule = listFrame:CreateTexture(nil, "ARTWORK")
+  rule:SetTexture("Interface\\Buttons\\WHITE8x8")
+  rule:SetVertexColor(1,1,1,0.15)
+  rule:SetPoint("TOPLEFT", listFrame, "TOPLEFT", 2, -16)
+  rule:SetPoint("TOPRIGHT", listFrame, "TOPRIGHT", -2, -16)
+  rule:SetHeight(1)
+
+ -- Tooltip (Item + Source)
+-- target kann Frame oder FontString sein; wir legen bei Bedarf einen Hover-Frame drüber
+local function attachTooltip(target, recName, source)
+  local itemId = D.RECIPE_ITEM_IDS and D.RECIPE_ITEM_IDS[recName]
+
+  -- vorhandenen Wrapper nutzen oder neu anlegen
+  local owner = target._bcgHot
+  if not owner or not owner.EnableMouse then
+    local parent = (target and target.GetParent and target:GetParent()) or listFrame
+    owner = CreateFrame("Frame", nil, parent)
+    owner:SetFrameLevel((parent:GetFrameLevel() or 0) + 2)
+    owner:ClearAllPoints()
+    owner:SetPoint("TOPLEFT",     target, "TOPLEFT",     -2,  2)
+    owner:SetPoint("BOTTOMRIGHT", target, "BOTTOMRIGHT",  2, -2)
+    target._bcgHot = owner
+  end
+
+  owner:EnableMouse(true)
+  owner:SetScript("OnEnter", function()
+    local tip = GetBCGTooltip(); if not tip then return end
+
+    -- WICHTIG:
+    --  * kein SetParent(frame)
+    --  * keine eigene Positionierungslogik mehr
+    --  * WoW kümmert sich mit ANCHOR_RIGHT + SetClampedToScreen um alles
+    tip:SetOwner(owner, "ANCHOR_RIGHT")
+    tip:SetClampedToScreen(true)
+    tip:ClearLines()
+
+    if itemId and tip.SetHyperlink then
+      tip:SetHyperlink("item:"..itemId)
+      tip:AddLine(" ", 1, 1, 1)
+    else
+      tip:AddLine(recName or "Recipe", 1, 0.82, 0, true)
+    end
+
+    tip:AddLine("|cffaaaaaaSource:|r", 1, 1, 1)
+    tip:AddLine(tostring(source or "—"), 0.8, 0.8, 0.8, true)
+    tip:Show()
+  end)
+
+  owner:SetScript("OnLeave", HideTooltip)
+end
+
+
+
+
+ -- addRowGeneric mit Top-Padding und korrektem Tooltip-Owner/Anker
+local function addRowGeneric(parentFrame, yIndex, recName, source, topPad)
+  topPad = topPad or 26
+
+  local row = CreateFrame("Frame", nil, parentFrame)
+  local rowHeight, rowSpacing = 20, 2
+  row:SetHeight(rowHeight)
+  row:SetPoint("TOPLEFT", parentFrame, "TOPLEFT", 2, -(topPad + (yIndex-1)*(rowHeight+rowSpacing)))
+  row:SetPoint("RIGHT", parentFrame, "RIGHT", -2, 0)
+
+  local icon = row:CreateTexture(nil, "ARTWORK")
+  icon:SetWidth(14); icon:SetHeight(14)
+  icon:SetPoint("LEFT", row, "LEFT", 2, 0)
+  icon:SetTexture((D.IconFor and D.IconFor(recName)) or "Interface\\Icons\\INV_Misc_QuestionMark")
+
+  local nameFS = row:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+  nameFS:SetPoint("LEFT", icon, "RIGHT", 6, 0)
+  nameFS:SetJustifyH("LEFT")
+  nameFS:SetText(recName or "?")
+
+  -- HIER ändern:
+  attachTooltip(nameFS, recName, source)   -- statt: attachTooltip(row, recName, source)
+
+  return rowHeight + rowSpacing
+end
+
+
+
+
+  -- ===== 3-Spalten-Layout (nur für Alchemy **und** trainable) =====
+local function renderAlchemyThreeCols(S)
+  local totalW = 450
+  local colGap = 8
+  local colW = math.floor((totalW - colGap*2) / 3)
+
+  -- Header "Recipe" oben links
+  local hdr = listFrame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+  hdr:SetPoint("TOPLEFT", listFrame, "TOPLEFT", 4, -2)
+  hdr:SetText("Recipe")
+
+  local cols = {}
+  local headers = {"Elixirs", "Potions", "Oils"}
+
+  for i=1,3 do
+    local cf = CreateFrame("Frame", nil, listFrame)
+    cf:SetWidth(colW); cf:SetHeight(20)
+
+    -- Spalten direkt unter dem "Recipe"-Header beginnen lassen
+    if i == 1 then
+      cf:SetPoint("TOPLEFT", listFrame, "TOPLEFT", 4, -28)  -- etwas unter dem "Recipe"-Text
+    else
+      cf:SetPoint("TOPLEFT", cols[i-1], "TOPRIGHT", colGap, 0)
+    end
+    cols[i] = cf
+
+    local hdrFS = cf:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+    hdrFS:SetText(headers[i])
+    hdrFS:SetPoint("TOPLEFT", cf, "TOPLEFT", 0, 0)
+  end
+
+  local function catIndex(name)
+    local n = tostring(name or "")
+    if string.find(n, "Elixir", 1, true) then return 1
+    elseif string.find(n, "Potion", 1, true) then return 2
+    elseif string.find(n, "Oil",    1, true) then return 3
+    else return 2 end
+  end
+
+  local rowsPerCol, usedHeight = {1,1,1}, {0,0,0}
+  for _, entry in ipairs(S) do
+    local idx = catIndex(entry.name)
+    local h = addRowGeneric(cols[idx], rowsPerCol[idx], entry.name, entry.source)
+    rowsPerCol[idx] = rowsPerCol[idx] + 1
+    usedHeight[idx] = usedHeight[idx] + h
+  end
+
+  local maxH = math.max(usedHeight[1], usedHeight[2], usedHeight[3])
+  for i=1,3 do cols[i]:SetHeight(maxH + 10) end
+
+  content:SetHeight(maxH + TOP_OFFSET + 40)
+  if BCG and BCG.ui and BCG.ui.scroll and BCG.ui.scroll.UpdateScrollChildRect then
+    BCG.ui.scroll:UpdateScrollChildRect()
+  end
+end
+
+
+  -- ===== 1-Spalten-Layout (Fallback für alle anderen Tabs/Berufe) =====
+  local function renderGenericOneCol(S)
+    -- Header „Recipe“
+    local hdr = listFrame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+    hdr:SetPoint("TOPLEFT", listFrame, "TOPLEFT", 4, -2)
+    hdr:SetText("Recipe")
+
+    local y = 1
+    for _, entry in ipairs(S) do
+      addRowGeneric(listFrame, y, entry.name, entry.source)
+      y = y + 1
+    end
+    local h = (y * 22)
+    content:SetHeight(h + TOP_OFFSET)
+    if BCG and BCG.ui and BCG.ui.scroll and BCG.ui.scroll.UpdateScrollChildRect then
+      BCG.ui.scroll:UpdateScrollChildRect()
+    end
+  end
+
+    local function render()
+    -- alte Inhalte ausblenden
+    for _, c in ipairs({listFrame:GetChildren()}) do
+      if c.Hide then c:Hide() end
+    end
+
+    -- solange kein Tab gewählt ist: leer lassen
+    if not current then
+      content:SetHeight(80)             -- kleines leeres Layout
+      if BCG and BCG.ui and BCG.ui.scroll and BCG.ui.scroll.UpdateScrollChildRect then
+        BCG.ui.scroll:UpdateScrollChildRect()
+      end
+      return
+    end
+
+    -- ab hier normal rendern
+    local S = getSourceList(current)
+    if PROF.key == "alchemy" and current == "trainable" then
+      renderAlchemyThreeCols(S)
+    else
+      renderGenericOneCol(S)
+    end
+  end
+
+
+  -- Tabs platzieren
+  local x = 0
+  for _, t in ipairs(tabs) do
+    local tk = t
+    makeTabButton(tk.label, x, function() current = tk.key; render() end)
+    x = x + 100
+  end
+
+  render()
+  return content
+end
 
 
 local function CreateRecipeRow(parent, D, PROF, anchor, st)
@@ -726,9 +1005,11 @@ function Common.RegisterProfession(PROF)
   -- PROF = { key="leatherworking", names={"Leatherworking","Lederverarbeitung"}, label="Leatherworking", prefix="lw", trainers=optional }
   local trainerKey  = PROF.prefix .. "_trainer"
   local shoppingKey = PROF.prefix .. "_shopping"
+  local recipesKey  = PROF.prefix .. "_recipes"
 
   BCG:RegisterPage(trainerKey,  "Trainer",  function(parent) return BuildTrainerGeneric(parent, PROF) end)
   BCG:RegisterPage(shoppingKey, "Shopping", function(parent) return BuildShoppingGeneric(parent, PROF) end)
+  BCG:RegisterPage(recipesKey,  "Recipes",  function(parent) return BuildRecipesGeneric(parent, PROF) end)
 end
 
 BashyoCraftingGuide.PageCommon = Common

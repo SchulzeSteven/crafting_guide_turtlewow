@@ -53,6 +53,7 @@ local isProfession = (label ~= nil)
     tabs = {
       { key = prefix .. "_trainer",  text = "Trainer"  },
       { key = prefix .. "_shopping", text = "Shopping" },
+      { key = prefix .. "_recipes",  text = "Recipes"  },
     }
   end
 
